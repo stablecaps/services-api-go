@@ -66,10 +66,14 @@ paths:
               schema:
                 type: object
                 properties:
-                  service_name:
+                  serviceName:
                     type: string
-                  service_description:
+                  serviceDescription:
                     type: string
+                  serviceVersion:
+                    type: string
+                  serviceId:
+                    type: integer
 
         '400':
           $ref: '#/components/responses/400Error'
@@ -86,12 +90,14 @@ components:
       required:
         - serviceId
       properties:
-        service_name:
+        serviceName:
           type: string
-        service_description:
+        serviceDescription:
+          type: string
+        serviceVersion:
           type: string
         serviceId:
-          type: string
+          type: integer
 
   parameters:
     PageLimit:
