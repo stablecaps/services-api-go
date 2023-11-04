@@ -48,11 +48,11 @@ paths:
         '400':
           $ref: '#/components/responses/400Error'
 
-  /services/{serviceId}:
+  /services/{ServiceId}:
     get:
-      description: Obtain information about a service from it's unique serviceId
+      description: Obtain information about a service from it's unique ServiceId
       parameters:
-        - name: serviceId
+        - name: ServiceId
           in: path
           required: true
           schema:
@@ -66,14 +66,16 @@ paths:
               schema:
                 type: object
                 properties:
-                  serviceName:
+                  ServiceName:
                     type: string
-                  serviceDescription:
+                  ServiceDescription:
                     type: string
-                  serviceVersion:
+                  ServiceVersions:
+                    type: array
+                    items:
+                      type: string
+                  ServiceId:
                     type: string
-                  serviceId:
-                    type: integer
 
         '400':
           $ref: '#/components/responses/400Error'
@@ -88,16 +90,18 @@ components:
     Service:
       type: object
       required:
-        - serviceId
+        - ServiceId
       properties:
-        serviceName:
+        ServiceName:
           type: string
-        serviceDescription:
+        ServiceDescription:
           type: string
-        serviceVersion:
+        ServiceVersions:
+          type: array
+          items:
+            type: string
+        ServiceId:
           type: string
-        serviceId:
-          type: integer
 
   parameters:
     PageLimit:

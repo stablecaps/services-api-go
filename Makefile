@@ -1,8 +1,8 @@
-@build:
+build:
 	go build -o bin/servicesapi
 
-@run:
+run:
 	./bin/servicesapi
 
-@test:
+test:
 	go test -v ./...
