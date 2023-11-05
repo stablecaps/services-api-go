@@ -24,28 +24,28 @@ type ApiError struct {
 
 func makeHTTPHandleFunc(f ApiFunc) http.HandlerFunc {
 	return func(writer http.ResponseWriter, req *http.Request) {
-		if error := f(writer, req); error != nil {
-			WriteJson(writer, http.StatusBadRequest, ApiError{Error: error.Error()})
+		if err := f(writer, req); err != nil {
+			WriteJson(writer, http.StatusBadRequest, ApiError{Error: err.Error()})
 		}
 	}
 }
 
 type APIServer struct {
 	listenAddr string
-	store 	Storage
+	db 	Dbase
 }
 
-func NewAPIServer(listenAddr string, store Storage) *APIServer {
+func NewAPIServer(listenAddr string, db Dbase) *APIServer {
 	return &APIServer{
 		listenAddr: listenAddr,
-		store: store,
+		db: db,
 	}
 }
 
 func (server *APIServer) Run() {
 	router := mux.NewRouter()
-	router.HandleFunc("/service", makeHTTPHandleFunc(server.handleService))
-	//router.HandleFunc("/service/{ServiceId}", makeHTTPHandleFunc(server.handleGetService))
+	router.HandleFunc("/services", makeHTTPHandleFunc(server.handleService))
+	router.HandleFunc("/services/{ServiceId}", makeHTTPHandleFunc(server.handleGetServiceById))
 
 	log.Println("API server running on port: ", server.listenAddr)
 	http.ListenAndServe(server.listenAddr, router)
@@ -53,22 +53,30 @@ func (server *APIServer) Run() {
 
 func (server *APIServer) handleService(writer http.ResponseWriter, req *http.Request) error {
 	if req.Method == "GET" {
-		return server.handleGetService(writer, req)
-	} else if req.Method == "POST" {
+		return server.handleGetAllServices(writer, req)
+	}
+
+	if req.Method == "POST" {
 		return server.handleCreateService(writer, req)
-	} else if req.Method == "DELETE" {
+	}
+
+	if req.Method == "DELETE" {
 		return server.handleDeleteService(writer, req)
 	}
 
 	return fmt.Errorf("unsupported method: <%s>", req.Method)
 }
 
-func (server *APIServer) handleListAllServices(writer http.ResponseWriter, req *http.Request) error {
+func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *http.Request) error {
+	serviceSlice, err := server.db.GetAllServices()
+	if err != nil {
+		return err
+	}
+	return WriteJson(writer, http.StatusOK, serviceSlice)
 
-	return nil
 }
 
-func (server *APIServer) handleGetService(writer http.ResponseWriter, req *http.Request) error {
+func (server *APIServer) handleGetServiceById(writer http.ResponseWriter, req *http.Request) error {
 
 	service := NewService("TestService", "A test service to play with")
 
@@ -80,7 +88,19 @@ func (server *APIServer) handleGetServiceVersions(writer http.ResponseWriter, re
 }
 
 func (server *APIServer) handleCreateService(writer http.ResponseWriter, req *http.Request) error {
-	return nil
+
+	log.Println("Creating new service")
+	createServReq := new(CreateServiceRequest)
+	if err := json.NewDecoder(req.Body).Decode(createServReq); err != nil {
+		return err
+	}
+
+	service := NewService(createServReq.ServiceName, createServReq.ServiceDescription)
+	if err := server.db.CreateService(service); err != nil {
+		return err
+	}
+
+	return WriteJson(writer, http.StatusOK, service)
 }
 
 func (server *APIServer) handleDeleteService(writer http.ResponseWriter, req *http.Request) error {

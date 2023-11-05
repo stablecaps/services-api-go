@@ -3,16 +3,20 @@ package main
 import (
 	"math/rand"
 	"strconv"
-
-	"github.com/google/uuid"
+	"time"
 )
 
-
-type Service struct {
+type CreateServiceRequest struct {
 	ServiceName string
 	ServiceDescription string
-  	ServiceVersions []string
-  	ServiceId string
+}
+
+type Service struct {
+	ServiceId int
+	ServiceName string
+	ServiceDescription string
+  	// ServiceVersions pq.StringArray
+	CreatedAt time.Time
 }
 
 func makeRandomVersionsSlice(max int) []string {
@@ -33,8 +37,8 @@ func NewService(ServiceName, ServiceDescription string) *Service {
 	return &Service{
 		ServiceName: ServiceName,
 		ServiceDescription: ServiceDescription,
-		ServiceVersions: makeRandomVersionsSlice(5),
+		// ServiceVersions: makeRandomVersionsSlice(5),
 		// TODO: check if uuid already exists
-		ServiceId: uuid.NewString(),
+		CreatedAt: time.Now().UTC(),
 	}
 }

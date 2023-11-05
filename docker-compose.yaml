@@ -1,10 +1,11 @@
 version: '3.8'
 services:
   postgres:
-    image: postgres:15
+    image: postgres:16
+    restart: always
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_PASSWORD=mysecretpassword
     volumes:
       - postgres-db-volume:/var/lib/postgresql/data
     ports:
@@ -13,13 +14,14 @@ services:
       - postgres-db-network
   pgadmin:
     image: dpage/pgadmin4
+    restart: always
     environment:
-      PGADMIN_DEFAULT_EMAIL: 'teste@teste.com'
-      PGADMIN_DEFAULT_PASSWORD: 'teste'
+      PGADMIN_DEFAULT_EMAIL: 'admin@stablecaps.com'
+      PGADMIN_DEFAULT_PASSWORD: 'admin'
     ports:
       - 16543:80
-    volumes:
-      - ./servers.json:/pgadmin4/servers.json
+    # volumes:
+    #   - ./postgres_servers.json:/pgadmin4/servers.json
     networks:
       - postgres-db-network
 
