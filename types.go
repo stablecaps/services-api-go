@@ -23,16 +23,16 @@ func makeRandomVersionsSlice(max int) string {
 }
 
 type CreateServiceRequest struct {
-	ServiceName string
-	ServiceDescription string
+	ServiceName string `json:"serviceName"`
+	ServiceDescription string `json:"serviceDescription"`
 }
 
 type Service struct {
-	ServiceId int
-	ServiceName string
-	ServiceDescription string
-  	ServiceVersions string
-	CreatedAt time.Time
+	ServiceId int `json:"serviceId"`
+	ServiceName string `json:"serviceName"`
+	ServiceDescription string `json:"serviceDescription"`
+  	ServiceVersions string `json:"serviceVersions"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 func NewService(ServiceName, ServiceDescription string) *Service {

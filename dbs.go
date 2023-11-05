@@ -4,13 +4,14 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"strconv"
 
 	_ "github.com/lib/pq"
 )
 
 type Dbase interface {
 	GetAllServices() ([]*Service, error)
-	GetServiceById(string) (*Service, error)
+	GetServiceById(int) (*Service, error)
 	CreateService(*Service)  error
 	UpdateService(*Service) error
 	DeleteService(string) error
@@ -31,6 +32,7 @@ func NewPostgresDb() (*PostgresDb, error) {
 	}
 
 	if err := db.Ping(); err != nil {
+		log.Printf("Error: %s", err)
 		return nil, err
 	}
 
@@ -65,31 +67,45 @@ func (db *PostgresDb) GetAllServices() ([]*Service, error) {
 	query := `select * from services`
 	rows, err := db.db.Query(query)
 	if err != nil {
+		log.Printf("Error: %s", err)
 		return nil, err
 	}
 
 	serviceSlice := []*Service{}
 	for rows.Next() {
-		service := new(Service)
-		err := rows.Scan(
-			&service.ServiceId,
-			&service.ServiceName,
-			&service.ServiceDescription,
-			&service.ServiceVersions,
-			&service.CreatedAt,
-		)
-		if err != nil {
+		service, err := scanService(rows)
+		serviceSlice = append(serviceSlice, service)
+		if err !=nil {
+			log.Printf("Error: %s", err)
 			return nil, err
 		}
+
 		serviceSlice = append(serviceSlice, service)
 	}
 	log.Println("DB lookup sucessful")
 	return serviceSlice, nil
 }
 
-func (db *PostgresDb) GetServiceById(ServiceId string) (*Service, error) {
-	return nil, nil
+func (db *PostgresDb) GetServiceById(ServiceId int) (*Service, error) {
+	fmt.Println("ServiceId: " + strconv.Itoa(ServiceId))
+	query := `select * from services where ServiceId = $1`
+	rows, err := db.db.Query(
+		query,
+		ServiceId,
+	)
+	if err != nil {
+		log.Printf("Error: %s", err)
+		return nil, err
+	}
+	for rows.Next() {
+		return scanService(rows)
+	}
+	return nil, fmt.Errorf("service with ServiceId %d not found", ServiceId)
 }
+
+// func (db *PostgresDb) GetServiceByName(ServiceName string) (*Service, error) {
+// 	return nil
+// }
 
 func (db *PostgresDb) GetServiceVersions(*Service) error {
 	return nil
@@ -128,3 +144,14 @@ func (db *PostgresDb) DeleteService(ServiceId string) error {
 	return nil
 }
 
+func scanService(rows *sql.Rows) (*Service, error) {
+	service := new(Service)
+	err := rows.Scan(
+		&service.ServiceId,
+		&service.ServiceName,
+		&service.ServiceDescription,
+		&service.ServiceVersions,
+		&service.CreatedAt,
+	)
+	return service, err
+}

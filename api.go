@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -19,12 +20,13 @@ func WriteJson(writer http.ResponseWriter, status int, value any) error {
 type ApiFunc func(http.ResponseWriter, *http.Request) error
 
 type ApiError struct {
-	Error string
+	Error string `json:"error"`
 }
 
 func makeHTTPHandleFunc(f ApiFunc) http.HandlerFunc {
 	return func(writer http.ResponseWriter, req *http.Request) {
 		if err := f(writer, req); err != nil {
+			log.Printf("Error: %s", err)
 			WriteJson(writer, http.StatusBadRequest, ApiError{Error: err.Error()})
 		}
 	}
@@ -70,6 +72,7 @@ func (server *APIServer) handleService(writer http.ResponseWriter, req *http.Req
 func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *http.Request) error {
 	serviceSlice, err := server.db.GetAllServices()
 	if err != nil {
+		log.Printf("Error: %s", err)
 		return err
 	}
 	return WriteJson(writer, http.StatusOK, serviceSlice)
@@ -77,8 +80,19 @@ func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *h
 }
 
 func (server *APIServer) handleGetServiceById(writer http.ResponseWriter, req *http.Request) error {
+	serviceIdStr := mux.Vars(req)["ServiceId"]
+	serviceId, err := strconv.Atoi(serviceIdStr)
+	if err != nil {
+		return fmt.Errorf("invalid serviceidstr <%s>", serviceIdStr)
+	}
 
-	service := NewService("TestService", "A test service to play with")
+	service, err := server.db.GetServiceById(serviceId)
+	if err != nil {
+		log.Printf("Error: %s", err)
+		return err
+	}
+
+	fmt.Printf("checking for serviceId <%d>", serviceId)
 
 	return WriteJson(writer, http.StatusOK, service)
 }
@@ -97,6 +111,7 @@ func (server *APIServer) handleCreateService(writer http.ResponseWriter, req *ht
 
 	service := NewService(createServReq.ServiceName, createServReq.ServiceDescription)
 	if err := server.db.CreateService(service); err != nil {
+		log.Printf("Error: %s", err)
 		return err
 	}
 
