@@ -1,2 +1,7 @@
-# services-api-go
-A services api written in Go
+# Dashboard Services Go API
+
+## Overview
+An api to retreive a list of services written in Go
+
+
+##
