@@ -17,6 +17,17 @@ func WriteJson(writer http.ResponseWriter, status int, value any) error {
 	return json.NewEncoder(writer).Encode(value)
 }
 
+
+func getServiceId(req *http.Request) (int, error) {
+	serviceIdStr := mux.Vars(req)["ServiceId"]
+	serviceId, err := strconv.Atoi(serviceIdStr)
+	if err != nil {
+		return serviceId, fmt.Errorf("invalid serviceidstr <%s>", serviceIdStr)
+	}
+
+	return serviceId, nil
+}
+
 type ApiFunc func(http.ResponseWriter, *http.Request) error
 
 type ApiError struct {
@@ -46,27 +57,13 @@ func NewAPIServer(listenAddr string, db Dbase) *APIServer {
 
 func (server *APIServer) Run() {
 	router := mux.NewRouter()
-	router.HandleFunc("/services", makeHTTPHandleFunc(server.handleService))
-	router.HandleFunc("/services/{ServiceId}", makeHTTPHandleFunc(server.handleGetServiceById))
+	router.HandleFunc("/services", makeHTTPHandleFunc(server.handleGetAllServices))
+	router.HandleFunc("/services/{ServiceId}", makeHTTPHandleFunc(server.handleServiceId))
+	router.HandleFunc("/services/new", makeHTTPHandleFunc(server.handleCreateService))
+	router.HandleFunc("/services/versions", makeHTTPHandleFunc(server.handleGetServiceVersions))
 
 	log.Println("API server running on port: ", server.listenAddr)
 	http.ListenAndServe(server.listenAddr, router)
-}
-
-func (server *APIServer) handleService(writer http.ResponseWriter, req *http.Request) error {
-	if req.Method == "GET" {
-		return server.handleGetAllServices(writer, req)
-	}
-
-	if req.Method == "POST" {
-		return server.handleCreateService(writer, req)
-	}
-
-	if req.Method == "DELETE" {
-		return server.handleDeleteService(writer, req)
-	}
-
-	return fmt.Errorf("unsupported method: <%s>", req.Method)
 }
 
 func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *http.Request) error {
@@ -79,26 +76,51 @@ func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *h
 
 }
 
-func (server *APIServer) handleGetServiceById(writer http.ResponseWriter, req *http.Request) error {
-	serviceIdStr := mux.Vars(req)["ServiceId"]
-	serviceId, err := strconv.Atoi(serviceIdStr)
-	if err != nil {
-		return fmt.Errorf("invalid serviceidstr <%s>", serviceIdStr)
+func (server *APIServer) handleServiceId(writer http.ResponseWriter, req *http.Request) error {
+	if req.Method == "GET" {
+		return server.handleGetServiceById(writer, req)
 	}
 
+	// if req.Method == "POST" {
+	// 	return server.handleCreateService(writer, req)
+	// }
+
+	if req.Method == "DELETE" {
+		return server.handleDeleteServiceById(writer, req)
+	}
+
+	return fmt.Errorf("unsupported method: <%s>", req.Method)
+}
+
+func (server *APIServer) handleGetServiceById(writer http.ResponseWriter, req *http.Request) error {
+	serviceId, err := getServiceId(req)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("checking for serviceId <%d>", serviceId)
 	service, err := server.db.GetServiceById(serviceId)
 	if err != nil {
 		log.Printf("Error: %s", err)
 		return err
 	}
 
-	fmt.Printf("checking for serviceId <%d>", serviceId)
-
 	return WriteJson(writer, http.StatusOK, service)
 }
 
-func (server *APIServer) handleGetServiceVersions(writer http.ResponseWriter, req *http.Request) error {
-	return nil
+func (server *APIServer) handleDeleteServiceById(writer http.ResponseWriter, req *http.Request) error {
+	serviceId, err := getServiceId(req)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Deleting service with serviceId <%d>", serviceId)
+	if err := server.db.DeleteServiceById(serviceId); err != nil {
+		log.Printf("Error: %s", err)
+		return err
+	}
+
+	return WriteJson(writer, http.StatusOK, map[string]int{"deleted": serviceId})
 }
 
 func (server *APIServer) handleCreateService(writer http.ResponseWriter, req *http.Request) error {
@@ -118,6 +140,6 @@ func (server *APIServer) handleCreateService(writer http.ResponseWriter, req *ht
 	return WriteJson(writer, http.StatusOK, service)
 }
 
-func (server *APIServer) handleDeleteService(writer http.ResponseWriter, req *http.Request) error {
+func (server *APIServer) handleGetServiceVersions(writer http.ResponseWriter, req *http.Request) error {
 	return nil
 }

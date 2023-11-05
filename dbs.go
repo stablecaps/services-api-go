@@ -14,7 +14,7 @@ type Dbase interface {
 	GetServiceById(int) (*Service, error)
 	CreateService(*Service)  error
 	UpdateService(*Service) error
-	DeleteService(string) error
+	DeleteServiceById(int) error
 }
 
 type PostgresDb struct {
@@ -136,12 +136,21 @@ func (db *PostgresDb) CreateService(service *Service) error {
 	return nil
 }
 
-func (db *PostgresDb) UpdateService(*Service) error {
-	return nil
-}
+func (db *PostgresDb) DeleteServiceById(ServiceId int) error {
+	log.Println("Deleting new service in DB")
 
-func (db *PostgresDb) DeleteService(ServiceId string) error {
-	return nil
+	query := `delete from services where ServiceId = $1`
+	_, err := db.db.Query(
+		query,
+		ServiceId,
+	)
+	// if err != nil {
+	// 	log.Printf("Error: %s", err)
+	// 	return nil, err
+	// }
+	return err
+
+
 }
 
 func scanService(rows *sql.Rows) (*Service, error) {
