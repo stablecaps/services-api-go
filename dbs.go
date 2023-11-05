@@ -13,7 +13,6 @@ type Dbase interface {
 	GetAllServices() ([]*Service, error)
 	GetServiceById(int) (*Service, error)
 	CreateService(*Service)  error
-	UpdateService(*Service) error
 	DeleteServiceById(int) error
 }
 
@@ -132,7 +131,7 @@ func (db *PostgresDb) CreateService(service *Service) error {
 	}
 
 	fmt.Printf("%+v\n", resp)
-	log.Printf("Created new service <%s> in DB", service.ServiceName)
+	log.Printf("Created new service %s in DB", service.ServiceName)
 	return nil
 }
 

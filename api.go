@@ -10,37 +10,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
-
-func WriteJson(writer http.ResponseWriter, status int, value any) error {
-	writer.WriteHeader(status)
-	writer.Header().Add("Content-Type", "application/json")
-	return json.NewEncoder(writer).Encode(value)
-}
-
-
-func getServiceId(req *http.Request) (int, error) {
-	serviceIdStr := mux.Vars(req)["ServiceId"]
-	serviceId, err := strconv.Atoi(serviceIdStr)
-	if err != nil {
-		return serviceId, fmt.Errorf("invalid serviceidstr <%s>", serviceIdStr)
-	}
-
-	return serviceId, nil
-}
-
 type ApiFunc func(http.ResponseWriter, *http.Request) error
 
 type ApiError struct {
 	Error string `json:"error"`
-}
-
-func makeHTTPHandleFunc(f ApiFunc) http.HandlerFunc {
-	return func(writer http.ResponseWriter, req *http.Request) {
-		if err := f(writer, req); err != nil {
-			log.Printf("Error: %s", err)
-			WriteJson(writer, http.StatusBadRequest, ApiError{Error: err.Error()})
-		}
-	}
 }
 
 type APIServer struct {
@@ -55,12 +28,24 @@ func NewAPIServer(listenAddr string, db Dbase) *APIServer {
 	}
 }
 
+////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
+func makeHTTPHandleFunc(f ApiFunc) http.HandlerFunc {
+	return func(writer http.ResponseWriter, req *http.Request) {
+		if err := f(writer, req); err != nil {
+			log.Printf("Error: %s", err)
+			WriteJson(writer, http.StatusBadRequest, ApiError{Error: err.Error()})
+		}
+	}
+}
+
 func (server *APIServer) Run() {
 	router := mux.NewRouter()
 	router.HandleFunc("/services", makeHTTPHandleFunc(server.handleGetAllServices))
-	router.HandleFunc("/services/{ServiceId}", makeHTTPHandleFunc(server.handleServiceId))
 	router.HandleFunc("/services/new", makeHTTPHandleFunc(server.handleCreateService))
 	router.HandleFunc("/services/versions", makeHTTPHandleFunc(server.handleGetServiceVersions))
+	router.HandleFunc("/services/id/{ServiceId}", makeHTTPHandleFunc(server.handleServiceId))
+
 
 	log.Println("API server running on port: ", server.listenAddr)
 	http.ListenAndServe(server.listenAddr, router)
@@ -82,14 +67,14 @@ func (server *APIServer) handleServiceId(writer http.ResponseWriter, req *http.R
 	}
 
 	// if req.Method == "POST" {
-	// 	return server.handleCreateService(writer, req)
+	// 	return server.handleServiceId(writer, req)
 	// }
 
 	if req.Method == "DELETE" {
 		return server.handleDeleteServiceById(writer, req)
 	}
 
-	return fmt.Errorf("unsupported method: <%s>", req.Method)
+	return fmt.Errorf("unsupported method: %s", req.Method)
 }
 
 func (server *APIServer) handleGetServiceById(writer http.ResponseWriter, req *http.Request) error {
@@ -98,7 +83,7 @@ func (server *APIServer) handleGetServiceById(writer http.ResponseWriter, req *h
 		return err
 	}
 
-	fmt.Printf("checking for serviceId <%d>", serviceId)
+	fmt.Printf("checking for serviceId %d", serviceId)
 	service, err := server.db.GetServiceById(serviceId)
 	if err != nil {
 		log.Printf("Error: %s", err)
@@ -114,7 +99,7 @@ func (server *APIServer) handleDeleteServiceById(writer http.ResponseWriter, req
 		return err
 	}
 
-	fmt.Printf("Deleting service with serviceId <%d>", serviceId)
+	fmt.Printf("Deleting service with serviceId %d", serviceId)
 	if err := server.db.DeleteServiceById(serviceId); err != nil {
 		log.Printf("Error: %s", err)
 		return err
@@ -127,13 +112,15 @@ func (server *APIServer) handleCreateService(writer http.ResponseWriter, req *ht
 
 	log.Println("Creating new service")
 	createServReq := new(CreateServiceRequest)
+
 	if err := json.NewDecoder(req.Body).Decode(createServReq); err != nil {
+		log.Printf("Error decoding json")
 		return err
 	}
 
 	service := NewService(createServReq.ServiceName, createServReq.ServiceDescription)
 	if err := server.db.CreateService(service); err != nil {
-		log.Printf("Error: %s", err)
+		log.Printf("Error creating service: %s", err)
 		return err
 	}
 
@@ -142,4 +129,24 @@ func (server *APIServer) handleCreateService(writer http.ResponseWriter, req *ht
 
 func (server *APIServer) handleGetServiceVersions(writer http.ResponseWriter, req *http.Request) error {
 	return nil
+}
+
+
+////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
+func WriteJson(writer http.ResponseWriter, status int, value any) error {
+	writer.WriteHeader(status)
+	writer.Header().Add("Content-Type", "application/json")
+	return json.NewEncoder(writer).Encode(value)
+}
+
+
+func getServiceId(req *http.Request) (int, error) {
+	serviceIdStr := mux.Vars(req)["ServiceId"]
+	serviceId, err := strconv.Atoi(serviceIdStr)
+	if err != nil {
+		return serviceId, fmt.Errorf("invalid serviceidstr %s", serviceIdStr)
+	}
+
+	return serviceId, nil
 }
