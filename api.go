@@ -56,7 +56,7 @@ func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *h
 	serviceSlice, err := server.db.GetAllServices()
 	if err != nil {
 		log.Printf("Error: %s", err)
-		return err
+		return WriteJson(writer, http.StatusBadRequest, err)
 	}
 	return WriteJson(writer, http.StatusOK, serviceSlice)
 
@@ -77,14 +77,14 @@ func (server *APIServer) handleServiceId(writer http.ResponseWriter, req *http.R
 func (server *APIServer) handleGetServiceById(writer http.ResponseWriter, req *http.Request) error {
 	serviceId, err := getServiceId(req)
 	if err != nil {
-		return err
+		return WriteJson(writer, http.StatusBadRequest, err)
 	}
 
 	fmt.Printf("checking for serviceId %d", serviceId)
 	service, err := server.db.GetServiceVersionsById(serviceId)
 	if err != nil {
 		log.Printf("Error: %s", err)
-		return err
+		return WriteJson(writer, http.StatusNotFound, err)
 	}
 
 	return WriteJson(writer, http.StatusOK, service)
@@ -93,13 +93,13 @@ func (server *APIServer) handleGetServiceById(writer http.ResponseWriter, req *h
 func (server *APIServer) handleDeleteServiceById(writer http.ResponseWriter, req *http.Request) error {
 	serviceId, err := getServiceId(req)
 	if err != nil {
-		return err
+		return WriteJson(writer, http.StatusBadRequest, err)
 	}
 
 	fmt.Printf("Deleting service with serviceId %d", serviceId)
 	if err := server.db.DeleteServiceById(serviceId); err != nil {
 		log.Printf("Error: %s", err)
-		return err
+		return WriteJson(writer, http.StatusNotFound, err)
 	}
 
 	return WriteJson(writer, http.StatusOK, map[string]int{"deleted": serviceId})
@@ -107,18 +107,22 @@ func (server *APIServer) handleDeleteServiceById(writer http.ResponseWriter, req
 
 func (server *APIServer) handleCreateService(writer http.ResponseWriter, req *http.Request) error {
 
+	if req.Method != "POST" {
+		return WriteJson(writer, http.StatusPreconditionFailed, fmt.Errorf("create service should use post"))
+	}
+
 	log.Println("Creating new service")
 	createServReq := new(CreateServiceRequest)
 
 	if err := json.NewDecoder(req.Body).Decode(createServReq); err != nil {
 		log.Printf("Error decoding json")
-		return err
+		return WriteJson(writer, http.StatusBadRequest, err)
 	}
 
 	service := NewService(createServReq.ServiceName, createServReq.ServiceDescription)
 	if err := server.db.CreateService(service); err != nil {
 		log.Printf("Error creating service: %s", err)
-		return err
+		return WriteJson(writer, http.StatusBadRequest, err)
 	}
 
 	return WriteJson(writer, http.StatusOK, service)
@@ -134,7 +138,7 @@ func (server *APIServer) handleGetServiceVersionsById(writer http.ResponseWriter
 	serviceVersions, err := server.db.GetServiceVersionsById(serviceId)
 	if err != nil {
 		log.Printf("Error: %s", err)
-		return err
+		return WriteJson(writer, http.StatusNotFound, err)
 	}
 
 	return WriteJson(writer, http.StatusOK, serviceVersions)
@@ -149,7 +153,7 @@ func (server *APIServer) handleGetServiceByName(writer http.ResponseWriter, req 
 	service, err := server.db.GetServiceByName(serviceName)
 	if err != nil {
 		log.Printf("Error: %s", err)
-		return err
+		return WriteJson(writer, http.StatusNotFound, err)
 	}
 
 	return WriteJson(writer, http.StatusOK, service)
