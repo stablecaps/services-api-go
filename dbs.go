@@ -11,9 +11,11 @@ import (
 
 type Dbase interface {
 	GetAllServices() ([]*Service, error)
+	GetServiceByName(string) (*Service, error)
 	GetServiceById(int) (*Service, error)
-	CreateService(*Service)  error
 	DeleteServiceById(int) error
+	GetServiceVersionsById(int) (string, error)
+	CreateService(*Service)  error
 }
 
 type PostgresDb struct {
@@ -59,7 +61,8 @@ func (db *PostgresDb) CreateServiceTable() error {
 	return err
 }
 
-
+////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
 func (db *PostgresDb) GetAllServices() ([]*Service, error) {
 	log.Println("Looking up services in DB")
 
@@ -69,6 +72,7 @@ func (db *PostgresDb) GetAllServices() ([]*Service, error) {
 		log.Printf("Error: %s", err)
 		return nil, err
 	}
+	defer rows.Close()
 
 	serviceSlice := []*Service{}
 	for rows.Next() {
@@ -85,8 +89,27 @@ func (db *PostgresDb) GetAllServices() ([]*Service, error) {
 	return serviceSlice, nil
 }
 
+func (db *PostgresDb) GetServiceByName(ServiceName string) (*Service, error) {
+	fmt.Println("\nServiceName: " + ServiceName)
+	query := `select * from services where ServiceName = $1`
+	rows, err := db.db.Query(
+		query,
+		ServiceName,
+	)
+	if err != nil {
+		log.Printf("Error: %s", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		return scanService(rows)
+	}
+	return nil, fmt.Errorf("service with ServiceName %s not found", ServiceName)
+}
+
 func (db *PostgresDb) GetServiceById(ServiceId int) (*Service, error) {
-	fmt.Println("ServiceId: " + strconv.Itoa(ServiceId))
+	fmt.Println("\nServiceId: " + strconv.Itoa(ServiceId))
 	query := `select * from services where ServiceId = $1`
 	rows, err := db.db.Query(
 		query,
@@ -96,18 +119,48 @@ func (db *PostgresDb) GetServiceById(ServiceId int) (*Service, error) {
 		log.Printf("Error: %s", err)
 		return nil, err
 	}
+	defer rows.Close()
+
 	for rows.Next() {
 		return scanService(rows)
 	}
 	return nil, fmt.Errorf("service with ServiceId %d not found", ServiceId)
 }
 
-// func (db *PostgresDb) GetServiceByName(ServiceName string) (*Service, error) {
-// 	return nil
-// }
+func (db *PostgresDb) DeleteServiceById(ServiceId int) error {
+	log.Println("Deleting new service in DB")
 
-func (db *PostgresDb) GetServiceVersions(*Service) error {
-	return nil
+	query := `delete from services where ServiceId = $1`
+	_, err := db.db.Query(
+		query,
+		ServiceId,
+	)
+	return err
+}
+
+func (db *PostgresDb) GetServiceVersionsById(ServiceId int) (string, error) {
+	fmt.Println("\nRetrieving version info for ServiceId: " + strconv.Itoa(ServiceId))
+	query := `select ServiceVersions from services where ServiceId = $1`
+	row := db.db.QueryRow(
+		query,
+		ServiceId,
+	)
+	if err := row.Err(); err != nil {
+		return "", err
+	}
+
+
+	var serviceVersions string
+	err := row.Scan(&serviceVersions)
+	if err == sql.ErrNoRows {
+		return "", fmt.Errorf("service with ServiceId %d not found", ServiceId)
+	} else if err != nil {
+		log.Printf("Error: %s", err)
+		return "", err
+	}
+
+	fmt.Println("versions: ", serviceVersions)
+	return serviceVersions, nil
 }
 
 func (db *PostgresDb) CreateService(service *Service) error {
@@ -135,23 +188,8 @@ func (db *PostgresDb) CreateService(service *Service) error {
 	return nil
 }
 
-func (db *PostgresDb) DeleteServiceById(ServiceId int) error {
-	log.Println("Deleting new service in DB")
-
-	query := `delete from services where ServiceId = $1`
-	_, err := db.db.Query(
-		query,
-		ServiceId,
-	)
-	// if err != nil {
-	// 	log.Printf("Error: %s", err)
-	// 	return nil, err
-	// }
-	return err
-
-
-}
-
+////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
 func scanService(rows *sql.Rows) (*Service, error) {
 	service := new(Service)
 	err := rows.Scan(

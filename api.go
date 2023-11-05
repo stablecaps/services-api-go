@@ -43,8 +43,9 @@ func (server *APIServer) Run() {
 	router := mux.NewRouter()
 	router.HandleFunc("/services", makeHTTPHandleFunc(server.handleGetAllServices))
 	router.HandleFunc("/services/new", makeHTTPHandleFunc(server.handleCreateService))
-	router.HandleFunc("/services/versions", makeHTTPHandleFunc(server.handleGetServiceVersions))
+	router.HandleFunc("/services/versions/{ServiceId}", makeHTTPHandleFunc(server.handleGetServiceVersionsById))
 	router.HandleFunc("/services/id/{ServiceId}", makeHTTPHandleFunc(server.handleServiceId))
+	router.HandleFunc("/services/name/{ServiceName}", makeHTTPHandleFunc(server.handleGetServiceByName))
 
 
 	log.Println("API server running on port: ", server.listenAddr)
@@ -66,10 +67,6 @@ func (server *APIServer) handleServiceId(writer http.ResponseWriter, req *http.R
 		return server.handleGetServiceById(writer, req)
 	}
 
-	// if req.Method == "POST" {
-	// 	return server.handleServiceId(writer, req)
-	// }
-
 	if req.Method == "DELETE" {
 		return server.handleDeleteServiceById(writer, req)
 	}
@@ -84,7 +81,7 @@ func (server *APIServer) handleGetServiceById(writer http.ResponseWriter, req *h
 	}
 
 	fmt.Printf("checking for serviceId %d", serviceId)
-	service, err := server.db.GetServiceById(serviceId)
+	service, err := server.db.GetServiceVersionsById(serviceId)
 	if err != nil {
 		log.Printf("Error: %s", err)
 		return err
@@ -127,10 +124,36 @@ func (server *APIServer) handleCreateService(writer http.ResponseWriter, req *ht
 	return WriteJson(writer, http.StatusOK, service)
 }
 
-func (server *APIServer) handleGetServiceVersions(writer http.ResponseWriter, req *http.Request) error {
-	return nil
+func (server *APIServer) handleGetServiceVersionsById(writer http.ResponseWriter, req *http.Request) error {
+	serviceId, err := getServiceId(req)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("checking for serviceId %d", serviceId)
+	serviceVersions, err := server.db.GetServiceVersionsById(serviceId)
+	if err != nil {
+		log.Printf("Error: %s", err)
+		return err
+	}
+
+	return WriteJson(writer, http.StatusOK, serviceVersions)
 }
 
+func (server *APIServer) handleGetServiceByName(writer http.ResponseWriter, req *http.Request) error {
+
+	serviceName := mux.Vars(req)["ServiceName"]
+	log.Printf("Searching for service %s  by name", serviceName)
+
+	fmt.Printf("checking for serviceName %s", serviceName)
+	service, err := server.db.GetServiceByName(serviceName)
+	if err != nil {
+		log.Printf("Error: %s", err)
+		return err
+	}
+
+	return WriteJson(writer, http.StatusOK, service)
+}
 
 ////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////
