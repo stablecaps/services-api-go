@@ -29,12 +29,12 @@ func makeRandomVersionsSlice(max int) []string {
 	return versions_array
 }
 
-func NewService(ServiceName, ServiceDescription, ServiceVersions string) *Service {
+func NewService(ServiceName, ServiceDescription string) *Service {
 	return &Service{
 		ServiceName: ServiceName,
 		ServiceDescription: ServiceDescription,
 		ServiceVersions: makeRandomVersionsSlice(5),
-		ServiceId: uuid.New(),
-
+		// TODO: check if uuid already exists
+		ServiceId: uuid.NewString(),
 	}
 }
