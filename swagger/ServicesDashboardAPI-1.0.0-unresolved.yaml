@@ -1,0 +1,130 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Service Catalog Dashboard API
+  description: Services API for dashboard widget
+
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/DARKPANDARTS_1/SimpleServiceAPI/1.0.0
+
+security:
+  - BasicAuth: []
+
+paths:
+  /services:
+    get:
+      description: Returns a list of services
+      parameters:
+        - $ref: '#/components/parameters/PageLimit'
+        - $ref: '#/components/parameters/PageOffset'
+      responses:
+        '200':
+          description: Successfully returned a list of services
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service'
+
+        '400':
+          $ref: '#/components/responses/400Error'
+
+    post:
+      description: Lets a user create a new service (post)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Service'
+
+      responses:
+        '200':
+          description: Successfully created a new service
+
+        '400':
+          $ref: '#/components/responses/400Error'
+
+  /services/{ServiceId}:
+    get:
+      description: Obtain information about a service from it's unique ServiceId
+      parameters:
+        - name: ServiceId
+          in: path
+          required: true
+          schema:
+            type: string
+
+      responses:
+        '200':
+          description: Successfully returned a service
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ServiceName:
+                    type: string
+                  ServiceDescription:
+                    type: string
+                  ServiceVersions:
+                    type: array
+                    items:
+                      type: string
+                  ServiceId:
+                    type: string
+
+        '400':
+          $ref: '#/components/responses/400Error'
+
+components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+
+  schemas:
+    Service:
+      type: object
+      required:
+        - ServiceId
+      properties:
+        ServiceName:
+          type: string
+        ServiceDescription:
+          type: string
+        ServiceVersions:
+          type: array
+          items:
+            type: string
+        ServiceId:
+          type: string
+
+  parameters:
+    PageLimit:
+      name: limit
+      in: query
+      description: Limits the number of items on a page
+      schema:
+        type: integer
+
+    PageOffset:
+      name: offset
+      in: query
+      description: Specifies the page number of the services to be displayed
+      schema:
+        type: integer
+
+  responses:
+    400Error:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
