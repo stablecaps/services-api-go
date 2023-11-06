@@ -9,7 +9,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func (db *PostgresDb) CreateServiceTable() error {
+func (db *PostgresDb) CreateTable() error {
 	query := `create table if not exists services (
 		ServiceId serial primary key,
 		ServiceName varchar(50),
@@ -50,7 +50,7 @@ func (db *PostgresDb) GetAllServices() ([]*Service, error) {
 	return serviceSlice, nil
 }
 
-func (db *PostgresDb) CreateService(service *Service) error {
+func (db *PostgresDb) CreateNewService(service *Service) error {
 	log.Println("Creating new service in DB")
 
 	query := `insert into services

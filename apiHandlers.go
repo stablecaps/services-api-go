@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -16,8 +17,8 @@ type ApiError struct {
 	Error string `json:"error"`
 }
 
-// //////////////////////////////////////////////////////
-// //////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
 func makeHTTPHandleFunc(f ApiFunc) http.HandlerFunc {
 	return func(writer http.ResponseWriter, req *http.Request) {
 		if err := f(writer, req); err != nil {
@@ -30,10 +31,11 @@ func makeHTTPHandleFunc(f ApiFunc) http.HandlerFunc {
 func (server *APIServer) Run() {
 	router := mux.NewRouter()
 	router.HandleFunc("/services", makeHTTPHandleFunc(server.handleGetAllServices))
-	router.HandleFunc("/services/new", makeHTTPHandleFunc(server.handleCreateService))
+	router.HandleFunc("/services/new", makeHTTPHandleFunc(server.handleCreateNewService))
 	router.HandleFunc("/services/versions/{ServiceId}", makeHTTPHandleFunc(server.handleGetServiceVersionsById))
 	router.HandleFunc("/services/id/{ServiceId}", makeHTTPHandleFunc(server.handleServiceId))
 	router.HandleFunc("/services/name/{ServiceName}", makeHTTPHandleFunc(server.handleGetServiceByName))
+	router.HandleFunc("/health", makeHTTPHandleFunc(server.handleGetHealth))
 
 	log.Println("API server running on port: ", server.listenAddr)
 	log.Fatal(http.ListenAndServe(server.listenAddr, router))
@@ -48,21 +50,30 @@ func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *h
 	return WriteJson(writer, http.StatusOK, serviceSlice)
 }
 
-func (server *APIServer) handleCreateService(writer http.ResponseWriter, req *http.Request) error {
+func (server *APIServer) handleCreateNewService(writer http.ResponseWriter, req *http.Request) error {
+	log.Println("req.Method", req.Method)
 	if req.Method != "POST" {
-		return WriteJson(writer, http.StatusPreconditionFailed, fmt.Errorf("create service should use post"))
+		return WriteJson(writer, http.StatusPreconditionFailed, "create service should use post")
 	}
 
 	log.Println("Creating new service")
 	createServReq := new(CreateServiceRequest)
+	log.Printf("createServReq: %s", createServReq)
 
-	if err := json.NewDecoder(req.Body).Decode(createServReq); err != nil {
-		log.Printf("Error decoding json")
-		return WriteJson(writer, http.StatusBadRequest, err)
-	}
+	err := decodeJSONBody(writer, req, &createServReq)
+    if err != nil {
+        var mr *malformedRequest
+        if errors.As(err, &mr) {
+            http.Error(writer, mr.msg, mr.status)
+        } else {
+            log.Print(err.Error())
+            http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+        }
+        return err
+    }
 
 	service := NewService(createServReq.ServiceName, createServReq.ServiceDescription)
-	if err := server.db.CreateService(service); err != nil {
+	if err := server.db.CreateNewService(service); err != nil {
 		log.Printf("Error creating service: %s", err)
 		return WriteJson(writer, http.StatusBadRequest, err)
 	}
@@ -143,8 +154,11 @@ func (server *APIServer) handleGetServiceByName(writer http.ResponseWriter, req 
 	return WriteJson(writer, http.StatusOK, service)
 }
 
-// //////////////////////////////////////////////////////
-// //////////////////////////////////////////////////////
+func (server *APIServer) handleGetHealth(writer http.ResponseWriter, req *http.Request) error {
+	return WriteJson(writer, http.StatusOK, "service is up and running")
+}
+////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
 func WriteJson(writer http.ResponseWriter, status int, value any) error {
 	writer.WriteHeader(status)
 	writer.Header().Add("Content-Type", "application/json")

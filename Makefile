@@ -5,4 +5,4 @@ run:
 	./bin/servicesapi
 
 test:
-	go test -v ./...
+	go test $(go list ./... | grep -v /data/) -coverprofile .testCoverage.txt

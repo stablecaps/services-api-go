@@ -11,7 +11,7 @@ type Dbase interface {
 	GetServiceById(int) (*Service, error)
 	DeleteServiceById(int) error
 	GetServiceVersionsById(int) (string, error)
-	CreateService(*Service)  error
+	CreateNewService(*Service)  error
 }
 
 type PostgresDb struct {
@@ -41,5 +41,5 @@ func NewPostgresDb() (*PostgresDb, error) {
 }
 
 func (db *PostgresDb) Init() error {
-	return db.CreateServiceTable()
+	return db.CreateTable()
 }
