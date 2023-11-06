@@ -7,7 +7,6 @@ import (
 	"time"
 )
 
-
 func makeRandomVersionsSlice(max int) string {
 	num_versions := rand.Intn(max)
 	if num_versions == 0 {

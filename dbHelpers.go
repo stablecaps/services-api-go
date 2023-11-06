@@ -50,6 +50,31 @@ func (db *PostgresDb) GetAllServices() ([]*Service, error) {
 	return serviceSlice, nil
 }
 
+func (db *PostgresDb) CreateService(service *Service) error {
+	log.Println("Creating new service in DB")
+
+	query := `insert into services
+	(ServiceName, ServiceDescription, ServiceVersions, CreatedAt)
+	values ($1, $2, $3, $4)`
+
+	resp, err := db.db.Query(
+		query,
+		service.ServiceName,
+		service.ServiceDescription,
+		service.ServiceVersions,
+		service.CreatedAt,
+	)
+
+	if err != nil {
+		log.Printf("Error: %s", err)
+		return err
+	}
+
+	fmt.Printf("%+v\n", resp)
+	log.Printf("Created new service %s in DB", service.ServiceName)
+	return nil
+}
+
 func (db *PostgresDb) GetServiceByName(ServiceName string) (*Service, error) {
 	fmt.Println("\nServiceName: " + ServiceName)
 	query := `select * from services where ServiceName = $1`
@@ -122,31 +147,6 @@ func (db *PostgresDb) GetServiceVersionsById(ServiceId int) (string, error) {
 
 	fmt.Println("versions: ", serviceVersions)
 	return serviceVersions, nil
-}
-
-func (db *PostgresDb) CreateService(service *Service) error {
-	log.Println("Creating new service in DB")
-
-	query := `insert into services
-	(ServiceName, ServiceDescription, ServiceVersions, CreatedAt)
-	values ($1, $2, $3, $4)`
-
-	resp, err := db.db.Query(
-		query,
-		service.ServiceName,
-		service.ServiceDescription,
-		service.ServiceVersions,
-		service.CreatedAt,
-	)
-
-	if err != nil {
-		log.Printf("Error: %s", err)
-		return err
-	}
-
-	fmt.Printf("%+v\n", resp)
-	log.Printf("Created new service %s in DB", service.ServiceName)
-	return nil
 }
 
 ////////////////////////////////////////////////////////

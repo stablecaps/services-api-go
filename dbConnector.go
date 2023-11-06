@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 )
+
 type Dbase interface {
 	GetAllServices() ([]*Service, error)
 	GetServiceByName(string) (*Service, error)
