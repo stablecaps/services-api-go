@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -30,19 +29,49 @@ func makeHTTPHandleFunc(f ApiFunc) http.HandlerFunc {
 
 func (server *APIServer) Run() {
 	router := mux.NewRouter()
-	router.HandleFunc("/services", makeHTTPHandleFunc(server.handleGetAllServices))
-	router.HandleFunc("/services/new", makeHTTPHandleFunc(server.handleCreateNewService))
-	router.HandleFunc("/services/versions/{ServiceId}", makeHTTPHandleFunc(server.handleGetServiceVersionsById))
-	router.HandleFunc("/services/id/{ServiceId}", makeHTTPHandleFunc(server.handleServiceId))
-	router.HandleFunc("/services/name/{ServiceName}", makeHTTPHandleFunc(server.handleGetServiceByName))
-	router.HandleFunc("/health", makeHTTPHandleFunc(server.handleGetHealth))
+	router.HandleFunc("/services", makeHTTPHandleFunc(server.handleGetAllServices)).Methods("GET")
+	router.HandleFunc("/services/new", makeHTTPHandleFunc(server.handleCreateNewService)).Methods("POST")
+	router.HandleFunc("/services/versions/{ServiceId:[0-9]+}", makeHTTPHandleFunc(server.handleGetServiceVersionsById)).Methods("GET")
+	router.HandleFunc("/services/id/{ServiceId:[0-9]+}", makeHTTPHandleFunc(server.handleGetServiceById)).Methods("GET")
+	router.HandleFunc("/services/id/{ServiceId:[0-9]+}", makeHTTPHandleFunc(server.handleDeleteServiceById)).Methods("DELETE")
+	router.HandleFunc("/services/name/{ServiceName:[a-zA-Z0-9]+}", makeHTTPHandleFunc(server.handleGetServiceByName)).Methods("GET")
+	router.HandleFunc("/health", makeHTTPHandleFunc(server.handleGetHealth)).Methods("GET")
 
 	log.Println("API server running on port: ", server.listenAddr)
 	log.Fatal(http.ListenAndServe(server.listenAddr, router))
 }
 
 func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *http.Request) error {
-	serviceSlice, err := server.db.GetAllServices()
+
+	strLimit := req.URL.Query().Get("limit")
+	log.Printf("strLimit is: %s", strLimit)
+	limit := 10
+    // with a value as -1 for gorms Limit method, we'll get a request without limit as default
+    if strLimit != "" {
+		var err error
+        limit, err = strconv.Atoi(strLimit)
+        if err != nil || limit < -1 {
+			return WriteJson(writer, http.StatusBadRequest, "limit query parameter is not a valid number")
+        }
+
+    }
+	log.Printf("limit is: %d", limit)
+
+
+    strOffset := req.URL.Query().Get("offset")
+	log.Printf("strOffset is: %s", strOffset)
+	offset := 0
+    if strOffset != "" {
+		var err error
+        offset, err = strconv.Atoi(strOffset)
+        if err != nil || offset < -1 {
+			WriteJson(writer, http.StatusBadRequest, "offset query parameter is not a valid number")
+        }
+    }
+	log.Printf("offset is: %d", offset)
+
+	// pageSize := 10
+	serviceSlice, err := server.db.GetAllServices(limit, offset)
 	if err != nil {
 		log.Printf("Error: %s", err)
 		return WriteJson(writer, http.StatusBadRequest, err)
@@ -51,26 +80,13 @@ func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *h
 }
 
 func (server *APIServer) handleCreateNewService(writer http.ResponseWriter, req *http.Request) error {
-	log.Println("req.Method", req.Method)
-	if req.Method != "POST" {
-		return WriteJson(writer, http.StatusPreconditionFailed, "create service should use post")
-	}
 
 	log.Println("Creating new service")
 	createServReq := new(CreateServiceRequest)
 	log.Printf("createServReq: %s", createServReq)
 
 	err := decodeJSONBody(writer, req, &createServReq)
-    if err != nil {
-        var mr *malformedRequest
-        if errors.As(err, &mr) {
-            http.Error(writer, mr.msg, mr.status)
-        } else {
-            log.Print(err.Error())
-            http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-        }
-        return err
-    }
+	jsonInputCheck(err,  writer)
 
 	service := NewService(createServReq.ServiceName, createServReq.ServiceDescription)
 	if err := server.db.CreateNewService(service); err != nil {
@@ -81,18 +97,6 @@ func (server *APIServer) handleCreateNewService(writer http.ResponseWriter, req 
 	return WriteJson(writer, http.StatusOK, service)
 }
 
-func (server *APIServer) handleServiceId(writer http.ResponseWriter, req *http.Request) error {
-	if req.Method == "GET" {
-		return server.handleGetServiceById(writer, req)
-	}
-
-	if req.Method == "DELETE" {
-		return server.handleDeleteServiceById(writer, req)
-	}
-
-	return fmt.Errorf("unsupported method: %s", req.Method)
-}
-
 func (server *APIServer) handleGetServiceById(writer http.ResponseWriter, req *http.Request) error {
 	serviceId, err := getServiceId(req)
 	if err != nil {
@@ -100,10 +104,10 @@ func (server *APIServer) handleGetServiceById(writer http.ResponseWriter, req *h
 	}
 
 	fmt.Printf("checking for serviceId %d", serviceId)
-	service, err := server.db.GetServiceVersionsById(serviceId)
+	service, err := server.db.GetServiceById(serviceId)
 	if err != nil {
 		log.Printf("Error: %s", err)
-		return WriteJson(writer, http.StatusNotFound, err)
+		return WriteJson(writer, http.StatusNotFound, "Error: serviceId not found")
 	}
 
 	return WriteJson(writer, http.StatusOK, service)

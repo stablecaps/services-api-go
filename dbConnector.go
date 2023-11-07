@@ -6,7 +6,7 @@ import (
 )
 
 type Dbase interface {
-	GetAllServices() ([]*Service, error)
+	GetAllServices(int, int) ([]*Service, error)
 	GetServiceByName(string) (*Service, error)
 	GetServiceById(int) (*Service, error)
 	DeleteServiceById(int) error

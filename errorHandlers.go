@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 
@@ -80,3 +81,17 @@ func decodeJSONBody(writer http.ResponseWriter, req *http.Request, dst interface
     return nil
 }
 
+
+func jsonInputCheck(err error, writer http.ResponseWriter) error {
+	if err != nil {
+		var mr *malformedRequest
+		if errors.As(err, &mr) {
+			http.Error(writer, mr.msg, mr.status)
+		} else {
+			log.Print(err.Error())
+			http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		}
+
+	}
+	return nil
+}

@@ -24,11 +24,22 @@ func (db *PostgresDb) CreateTable() error {
 
 ////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////
-func (db *PostgresDb) GetAllServices() ([]*Service, error) {
+func (db *PostgresDb) GetAllServices(limit, offset int) ([]*Service, error) {
+
 	log.Println("Looking up services in DB")
 
-	query := `select * from services`
-	rows, err := db.db.Query(query)
+	// query := `select * from services`
+	query := `SELECT * FROM services LIMIT $1 OFFSET $2`
+
+	log.Printf("SELECT * FROM services LIMIT %d OFFSET %d",
+		limit,
+		offset,)
+
+	rows, err := db.db.Query(
+		query,
+		limit,
+		offset,
+	)
 	if err != nil {
 		log.Printf("Error: %s", err)
 		return nil, err
@@ -36,9 +47,11 @@ func (db *PostgresDb) GetAllServices() ([]*Service, error) {
 	defer rows.Close()
 
 	serviceSlice := []*Service{}
+	idx := 0
 	for rows.Next() {
+		idx ++
+		fmt.Printf("\nidx", idx)
 		service, err := scanService(rows)
-		serviceSlice = append(serviceSlice, service)
 		if err !=nil {
 			log.Printf("Error: %s", err)
 			return nil, err
