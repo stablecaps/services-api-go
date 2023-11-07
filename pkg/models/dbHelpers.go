@@ -50,7 +50,7 @@ func (db *PostgresDb) GetAllServices(limit, offset int) ([]*Service, error) {
 	idx := 0
 	for rows.Next() {
 		idx ++
-		fmt.Printf("\nidx", idx)
+		fmt.Printf("\nidx: %d", idx)
 		service, err := scanService(rows)
 		if err !=nil {
 			log.Printf("Error: %s", err)
@@ -70,14 +70,13 @@ func (db *PostgresDb) CreateNewService(service *Service) error {
 	(ServiceName, ServiceDescription, ServiceVersions, CreatedAt)
 	values ($1, $2, $3, $4)`
 
-	resp, err := db.db.Query(
+	resp, err := db.db.Exec(
 		query,
 		service.ServiceName,
 		service.ServiceDescription,
 		service.ServiceVersions,
 		service.CreatedAt,
 	)
-
 	if err != nil {
 		log.Printf("Error: %s", err)
 		return err
@@ -130,16 +129,29 @@ func (db *PostgresDb) DeleteServiceById(ServiceId int) error {
 	log.Println("Deleting new service in DB")
 
 	query := `delete from services where ServiceId = $1`
-	_, err := db.db.Query(
+	res, err := db.db.Exec(
 		query,
 		ServiceId,
 	)
+	if err != nil {
+		log.Printf("Error: %s", err)
+		return err
+	}
+
+	numDeleted, err := res.RowsAffected()
+	if err != nil {
+		log.Printf("Error: %s", err)
+		return err
+	}
+	log.Printf("Number of rows deleted: %d", numDeleted)
+
 	return err
 }
 
 func (db *PostgresDb) GetServiceVersionsById(ServiceId int) (string, error) {
 	fmt.Println("\nRetrieving version info for ServiceId: " + strconv.Itoa(ServiceId))
 	query := `select ServiceVersions from services where ServiceId = $1`
+
 	row := db.db.QueryRow(
 		query,
 		ServiceId,
@@ -147,7 +159,6 @@ func (db *PostgresDb) GetServiceVersionsById(ServiceId int) (string, error) {
 	if err := row.Err(); err != nil {
 		return "", err
 	}
-
 
 	var serviceVersions string
 	err := row.Scan(&serviceVersions)

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"time"
 )
 
 type Dbase interface {
@@ -30,6 +31,11 @@ func NewPostgresDb(userName, dbName, password, sslmode string) (*PostgresDb, err
 		log.Fatal(err)
 		return nil, err
 	}
+
+	// set db connection related settings
+	db.SetMaxOpenConns(20) // Sane default
+	db.SetMaxIdleConns(0)
+	db.SetConnMaxLifetime(time.Nanosecond)
 
 	if err := db.Ping(); err != nil {
 		log.Printf("Error: %s", err)

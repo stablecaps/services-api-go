@@ -14,7 +14,7 @@ func main() {
 
 	log.Printf("Creating new service by posting data to: %s", createNewServiceUrl)
 
-	numServices := 200
+	numServices := 500
 
 
 	for idx := 0; idx <= numServices; idx++ {
