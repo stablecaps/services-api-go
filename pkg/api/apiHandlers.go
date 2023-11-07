@@ -95,7 +95,7 @@ func (server *APIServer) handleCreateNewService(writer http.ResponseWriter, req 
 		return WriteJson(writer, http.StatusBadRequest, err)
 	}
 
-	return WriteJson(writer, http.StatusOK, service)
+	return WriteJson(writer, http.StatusCreated, service)
 }
 
 func (server *APIServer) handleGetServiceById(writer http.ResponseWriter, req *http.Request) error {
