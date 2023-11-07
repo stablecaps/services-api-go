@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 )
 
@@ -18,9 +19,12 @@ type PostgresDb struct {
 	db *sql.DB
 }
 
-func NewPostgresDb() (*PostgresDb, error) {
-	// TODO: make password secret
-	connStr := "user=postgres dbname=postgres password=mysecretpassword sslmode=disable"
+func NewPostgresDb(userName, dbName, password, sslmode string) (*PostgresDb, error) {
+	log.Printf("hello")
+	connStr := fmt.Sprintf("user=%s dbname=%s password=%s sslmode=%s", userName, dbName, password, sslmode)
+	//connStr := "user=postgres dbname=postgres password=mysecretpassword sslmode=disable"
+	log.Printf("connStr: %s", connStr)
+
 
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {

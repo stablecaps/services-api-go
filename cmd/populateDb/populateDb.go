@@ -24,8 +24,8 @@ func main() {
 	log.Println("Creating new service")
 
 	body := []byte(`{
-		"serviceName": "example service2",
-		"ServiceDescription": "some desc2"
+		"serviceName": "",
+		"ServiceDescription": ""
 	}`)
 
 	req, err := http.NewRequest("POST", createNewServiceUrl, bytes.NewBuffer(body))

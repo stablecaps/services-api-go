@@ -28,20 +28,6 @@ func makeHTTPHandleFunc(f ApiFunc) http.HandlerFunc {
 	}
 }
 
-func (server *APIServer) Run() {
-	router := mux.NewRouter()
-	router.HandleFunc("/services", makeHTTPHandleFunc(server.handleGetAllServices)).Methods("GET")
-	router.HandleFunc("/services/new", makeHTTPHandleFunc(server.handleCreateNewService)).Methods("POST")
-	router.HandleFunc("/services/versions/{ServiceId:[0-9]+}", makeHTTPHandleFunc(server.handleGetServiceVersionsById)).Methods("GET")
-	router.HandleFunc("/services/id/{ServiceId:[0-9]+}", makeHTTPHandleFunc(server.handleGetServiceById)).Methods("GET")
-	router.HandleFunc("/services/id/{ServiceId:[0-9]+}", makeHTTPHandleFunc(server.handleDeleteServiceById)).Methods("DELETE")
-	router.HandleFunc("/services/name/{ServiceName:[a-zA-Z0-9]+}", makeHTTPHandleFunc(server.handleGetServiceByName)).Methods("GET")
-	router.HandleFunc("/health", makeHTTPHandleFunc(server.handleGetHealth)).Methods("GET")
-
-	log.Println("API server running on port: ", server.listenAddr)
-	log.Fatal(http.ListenAndServe(server.listenAddr, router))
-}
-
 func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *http.Request) error {
 
 	strLimit := req.URL.Query().Get("limit")
@@ -85,6 +71,7 @@ func (server *APIServer) handleCreateNewService(writer http.ResponseWriter, req 
 	log.Println("Creating new service")
 	createServReq := new(models.CreateServiceRequest)
 	log.Printf("createServReq: %s", createServReq)
+
 
 	err := decodeJSONBody(writer, req, &createServReq)
 	jsonInputCheck(err,  writer)

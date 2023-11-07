@@ -21,9 +21,10 @@ func makeRandomVersionsSlice(max int) string {
 	return strings.Join(versions_array[:], ",")
 }
 
+// TODO: validate for empty strings
 type CreateServiceRequest struct {
-	ServiceName string `json:"serviceName"`
-	ServiceDescription string `json:"serviceDescription"`
+	ServiceName string `json:"serviceName" validate:"required"`
+	ServiceDescription string `json:"serviceDescription" validate:"required"`
 }
 
 type Service struct {
