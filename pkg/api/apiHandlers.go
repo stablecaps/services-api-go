@@ -81,7 +81,7 @@ func (server *APIServer) handleCreateNewService(writer http.ResponseWriter, req 
 		log.Printf("Error creating service: %s", err)
 		return WriteJson(writer, http.StatusBadRequest, err)
 	}
-
+	log.Printf("Successfully created service: %s", err)
 	return WriteJson(writer, http.StatusCreated, service)
 }
 

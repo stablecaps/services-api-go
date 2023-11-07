@@ -5,7 +5,7 @@ build:
 run:
 	./bin/servicesapi
 
-runPopDb:
+runpopdb:
 	./bin/populateDb
 
 test:

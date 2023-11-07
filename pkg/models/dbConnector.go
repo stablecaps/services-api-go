@@ -22,7 +22,6 @@ type PostgresDb struct {
 func NewPostgresDb(userName, dbName, password, sslmode string) (*PostgresDb, error) {
 	log.Printf("hello")
 	connStr := fmt.Sprintf("user=%s dbname=%s password=%s sslmode=%s", userName, dbName, password, sslmode)
-	//connStr := "user=postgres dbname=postgres password=mysecretpassword sslmode=disable"
 	log.Printf("connStr: %s", connStr)
 
 
