@@ -1,5 +1,5 @@
 build:
-	go build -o bin/servicesapi
+	go build -C cmd/apiServerMain -o ../../bin/servicesapi
 
 run:
 	./bin/servicesapi

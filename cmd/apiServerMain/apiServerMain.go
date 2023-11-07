@@ -1,10 +1,16 @@
 package main
 
-import "log"
+import (
+	"log"
+
+	"github.com/stablecaps/services-api-go/pkg/api"
+	"github.com/stablecaps/services-api-go/pkg/models"
+)
 
 func main() {
+
 	log.Println("Starting up database..")
-	dataBase, err := NewPostgresDb()
+	dataBase, err := models.NewPostgresDb()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -14,7 +20,7 @@ func main() {
 	}
 
 	log.Println("Starting up server..")
-	server := NewAPIServer(":8969", dataBase)
+	server := api.NewAPIServer(":8969", dataBase)
 	server.Run()
 
 }

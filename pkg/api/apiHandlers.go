@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"encoding/json"
@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/stablecaps/services-api-go/pkg/models"
 )
 
 type ApiFunc func(http.ResponseWriter, *http.Request) error
@@ -82,13 +83,13 @@ func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *h
 func (server *APIServer) handleCreateNewService(writer http.ResponseWriter, req *http.Request) error {
 
 	log.Println("Creating new service")
-	createServReq := new(CreateServiceRequest)
+	createServReq := new(models.CreateServiceRequest)
 	log.Printf("createServReq: %s", createServReq)
 
 	err := decodeJSONBody(writer, req, &createServReq)
 	jsonInputCheck(err,  writer)
 
-	service := NewService(createServReq.ServiceName, createServReq.ServiceDescription)
+	service := models.NewService(createServReq.ServiceName, createServReq.ServiceDescription)
 	if err := server.db.CreateNewService(service); err != nil {
 		log.Printf("Error creating service: %s", err)
 		return WriteJson(writer, http.StatusBadRequest, err)
@@ -102,6 +103,7 @@ func (server *APIServer) handleGetServiceById(writer http.ResponseWriter, req *h
 	if err != nil {
 		return WriteJson(writer, http.StatusBadRequest, err)
 	}
+
 
 	fmt.Printf("checking for serviceId %d", serviceId)
 	service, err := server.db.GetServiceById(serviceId)
