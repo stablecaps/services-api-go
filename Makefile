@@ -9,7 +9,8 @@ runpopdb:
 	./bin/populateDb
 
 doc:
-	swag init --dir cmd/apiServerMain/ --output swagger --exclude data/ -g apiServerMain.go
+	# annoyingly broken
+	swag init --dir cmd/apiServerMain/ --output swagger --exclude data/ -g apiServerMain.go --parseDependency --parseDependencyLevel 3
 
 test:
 	go test $(go list ./... | grep -v /data/) -coverprofile .testCoverage.txt

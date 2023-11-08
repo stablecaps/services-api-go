@@ -8,6 +8,7 @@ import (
 	"github.com/stablecaps/services-api-go/pkg/api"
 	"github.com/stablecaps/services-api-go/pkg/config"
 	"github.com/stablecaps/services-api-go/pkg/models"
+	_ "github.com/stablecaps/services-api-go/swagger"
 )
 
 //	@title			Service Catalog Dashboard API

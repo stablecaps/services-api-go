@@ -28,24 +28,13 @@ func makeHTTPHandleFunc(f ApiFunc) http.HandlerFunc {
 	}
 }
 
-//	@Summary	Create new service
-//	@Id			2
-//	@produce	application/json
-//	@Param		mode.CreateServiceRequest	body {object}	true
-//	@Failure	500		{object}	"Server Error: $err"
-//	@Failure	404		{object}	"404 page not found"
-//	@Success	201		{object}	model.Service
-//	@Router		/services/new [post, head]
-
-
-
 //	@Summary	Get a list of all services
 //	@Id			1
 //	@produce	application/json
-//	@Failure	500		{object}	"Server Error: $err"
-//	@Failure	400		{object}	"limit query param invalid: $err"
-//	@Failure	400		{object}	"offset query param invalid: $err"
-//	@Success	200		{object}	model.Service
+//	@Failure	500		message	"Server Error: $err"
+//	@Failure	400		message	"limit query param invalid: $err"
+//	@Failure	400		message	"offset query param invalid: $err"
+//	@Success	200		message	model.Service
 //	@Router		/services [get, head]
 func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *http.Request) error {
 
@@ -91,10 +80,10 @@ func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *h
 //	@Summary	Create new service
 //	@Id			2
 //	@produce	application/json
-//	@Param		mode.CreateServiceRequest	body {object}	true
-//	@Failure	500		{object}	"Server Error: $err"
-//	@Failure	404		{object}	"404 page not found"
-//	@Success	201		{object}	model.Service
+//	@Param		mode.CreateServiceRequest	body message	true
+//	@Failure	500		message	"Server Error: $err"
+//	@Failure	404		message	"404 page not found"
+//	@Success	201		message	model.Service
 //	@Router		/services/new [post, head]
 func (server *APIServer) handleCreateNewService(writer http.ResponseWriter, req *http.Request) error {
 
@@ -122,10 +111,10 @@ func (server *APIServer) handleCreateNewService(writer http.ResponseWriter, req 
 //	@Id			3
 //	@produce	application/json
 //	@Param		serviceId	query		int	true	"serviceId"
-//	@Failure	500		{object}	"Server Error: $err"
-//	@Failure	400		{object}	"Error 400: $err"
-//	@Failure	404		{object}	"404 page not found"
-//	@Success	200		{object}	model.Service
+//	@Failure	500		message	"Server Error: $err"
+//	@Failure	400		message	"Error 400: $err"
+//	@Failure	404		message	"404 page not found"
+//	@Success	200		message	model.Service
 //	@Router		/services/id/{ServiceId:[0-9]+} [get, head]
 func (server *APIServer) handleGetServiceById(writer http.ResponseWriter, req *http.Request) error {
 	serviceId, err := getServiceId(req)
@@ -151,11 +140,11 @@ func (server *APIServer) handleGetServiceById(writer http.ResponseWriter, req *h
 //	@Id			4
 //	@produce	application/json
 //	@Param		serviceId	query		int	true	"serviceId"
-//	@Failure	500		{object}	"Server Error: $err"
-//	@Failure	400		{object}	"Error 400: $err"
-//	@Failure	404		{object}	"404 page not found"
-//	@Failure	404		{object}	"Could not find serviceId: $serviceId"
-//	@Success	200		{object}	"deleted $serviceId"
+//	@Failure	500		message	"Server Error: $err"
+//	@Failure	400		message	"Error 400: $err"
+//	@Failure	404		message	"404 page not found"
+//	@Failure	404		message	"Could not find serviceId: $serviceId"
+//	@Success	200		message	"deleted $serviceId"
 //	@Router		/services/id/{ServiceId:[0-9]+} [delete, head]
 func (server *APIServer) handleDeleteServiceById(writer http.ResponseWriter, req *http.Request) error {
 	serviceId, err := getServiceId(req)
@@ -186,10 +175,10 @@ func (server *APIServer) handleDeleteServiceById(writer http.ResponseWriter, req
 //	@Id			5
 //	@produce	application/json
 //	@Param		serviceId	query	int	true	"serviceId"
-//	@Failure	400		{object}	"Error 400: $err"
-//	@Failure	404		{object}	"404 page not found"
-//	@Failure	500		{object}	"Server Error: $err"
-//	@Success	200		{object}	serviceVersions
+//	@Failure	400		message	"Error 400: $err"
+//	@Failure	404		message	"404 page not found"
+//	@Failure	500		message	"Server Error: $err"
+//	@Success	200		message	serviceVersions
 //	@Router		/services/id/{ServiceId:[0-9]+} [get, head]
 func (server *APIServer) handleGetServiceVersionsById(writer http.ResponseWriter, req *http.Request) error {
 	serviceId, err := getServiceId(req)
@@ -216,9 +205,9 @@ func (server *APIServer) handleGetServiceVersionsById(writer http.ResponseWriter
 //	@Id			6
 //	@produce	application/json
 //	@Param		serviceName	query	string	true	"serviceName"
-//	@Failure	500		{object}	"Server Error: $err"
-//	@Failure	404		{object}	"404 page not found"
-//	@Success	200		{object}	service
+//	@Failure	500		message	"Server Error: $err"
+//	@Failure	404		message	"404 page not found"
+//	@Success	200		message	service
 //	@Router		/services/name/{ServiceName:[a-zA-Z0-9]+} [get, head]
 func (server *APIServer) handleGetServiceByName(writer http.ResponseWriter, req *http.Request) error {
 	// TODO: validate mux var (400 error)
@@ -239,7 +228,7 @@ func (server *APIServer) handleGetServiceByName(writer http.ResponseWriter, req 
 //	@Summary	Get API health
 //	@Id			6
 //	@produce	application/json
-//	@Success	200		{object}	"service is up and running"
+//	@Success	200		message	"service is up and running"
 //	@Router		/health [get, head]
 func (server *APIServer) handleGetHealth(writer http.ResponseWriter, req *http.Request) error {
 	return WriteJson(writer, http.StatusOK, "service is up and running")

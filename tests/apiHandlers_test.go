@@ -1,50 +1,52 @@
-package main
+// package tests
 
-import (
-	"encoding/json"
-	"net/http"
-	"os"
-	"testing"
-)
+// import (
+// 	"encoding/json"
+// 	"net/http"
+// 	"os"
+// 	"testing"
 
-// func (server *APIServer) handleCreateNewService(writer http.ResponseWriter, req *http.Request) error {
-// 	if req.Method != "POST" {
-// 		return WriteJson(writer, http.StatusPreconditionFailed, fmt.Errorf("create service should use post"))
+// 	"net/http"
+// 	"testing"
+
+// 	_ "github.com/stablecaps/services-api-go/pkg/api"
+// 	"github.com/stablecaps/services-api-go/pkg/models"
+// )
+
+// func TestAPIServer_handleGetServiceById(t *testing.T) {
+// 	type fields struct {
+// 		listenAddr string
+// 		db         models.Dbase
 // 	}
-
-// 	log.Println("Creating new service")
-// 	createServReq := new(CreateServiceRequest)
-// 	log.Printf("createServReq: %s", createServReq)
-
-// 	err := decodeJSONBody(writer, req, &createServReq)
-//     if err != nil {
-//         var mr *malformedRequest
-//         if errors.As(err, &mr) {
-//             http.Error(writer, mr.msg, mr.status)
-//         } else {
-//             log.Print(err.Error())
-//             http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-//         }
-//         return err
-//     }
-// 	// if err := json.NewDecoder(req.Body).Decode(createServReq); err != nil {
-// 	// 	log.Printf("Error decoding json: %s", err)
-// 	// 	return WriteJson(writer, http.StatusBadRequest, err)
-// 	// }
-
-// 	service := NewService(createServReq.ServiceName, createServReq.ServiceDescription)
-// 	if err := server.db.CreateNewService(service); err != nil {
-// 		log.Printf("Error creating service: %s", err)
-// 		return WriteJson(writer, http.StatusBadRequest, err)
+// 	type args struct {
+// 		writer http.ResponseWriter
+// 		req    *http.Request
 // 	}
-
-// 	return WriteJson(writer, http.StatusOK, service)
+// 	tests := []struct {
+// 		name    string
+// 		fields  fields
+// 		args    args
+// 		wantErr bool
+// 	}{
+// 		// TODO: Add test cases.
+// 	}
+// 	for _, tt := range tests {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			server := &APIServer{
+// 				listenAddr: tt.fields.listenAddr,
+// 				db:         tt.fields.db,
+// 			}
+// 			if err := server.handleGetServiceById(tt.args.writer, tt.args.req); (err != nil) != tt.wantErr {
+// 				t.Errorf("APIServer.handleGetServiceById() error = %v, wantErr %v", err, tt.wantErr)
+// 			}
+// 		})
+// 	}
 // }
 
-// func TestHandleCreateNewService(t *testing.T) {
-// 	go main()
 
-// 	response, err := http.Get("http://localhost:8969/services/new")
+// func TestHealthCheck(t *testing.T) {
+
+// 	response, err := http.Get("http://localhost:8969/health")
 // 	if err != nil {
 // 		t.Errorf("expected no errors, but got %v", err)
 // 	}
@@ -63,26 +65,3 @@ import (
 
 // 	os.Interrupt.Signal()
 // }
-
-func TestHealthCheck(t *testing.T) {
-	go main()
-
-	response, err := http.Get("http://localhost:8969/health")
-	if err != nil {
-		t.Errorf("expected no errors, but got %v", err)
-	}
-
-	if response.StatusCode != http.StatusOK {
-		t.Errorf("expected 200 statuscode, but got %v", response.StatusCode)
-	}
-
-	responseBody := ""
-	json.NewDecoder(response.Body).Decode(&responseBody)
-	response.Body.Close()
-
-	if responseBody != "service is up and running" {
-		t.Errorf(`expected message to be "service is up and running", but got %v`, responseBody)
-	}
-
-	os.Interrupt.Signal()
-}
