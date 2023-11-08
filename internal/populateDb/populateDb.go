@@ -38,10 +38,12 @@ func MakeRandomService() []byte {
 	body := []byte(fmt.Sprintf(`{
 		"serviceName": "%s",
 		"ServiceDescription": "%s"
-	}`,randomName, radomDesc) )
+	}`, randomName, radomDesc) )
 
 	return body
 }
+
+
 
 func SubmitPostRequest(url string, reqBody []byte) {
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(reqBody))

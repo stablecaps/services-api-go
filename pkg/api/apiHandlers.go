@@ -28,12 +28,24 @@ func makeHTTPHandleFunc(f ApiFunc) http.HandlerFunc {
 	}
 }
 
+//	@Summary	Create new service
+//	@Id			2
+//	@produce	application/json
+//	@Param		mode.CreateServiceRequest	body {object}	true
+//	@Failure	500		{object}	"Server Error: $err"
+//	@Failure	404		{object}	"404 page not found"
+//	@Success	201		{object}	model.Service
+//	@Router		/services/new [post, head]
+
+
+
 //	@Summary	Get a list of all services
 //	@Id			1
 //	@produce	application/json
-//	@Param		name	query		string	true	"Input name"
-//	@Success	200		{object}	GreeterResponse
-//	@Failure	404		{object}	message
+//	@Failure	500		{object}	"Server Error: $err"
+//	@Failure	400		{object}	"limit query param invalid: $err"
+//	@Failure	400		{object}	"offset query param invalid: $err"
+//	@Success	200		{object}	model.Service
 //	@Router		/services [get, head]
 func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *http.Request) error {
 
@@ -45,7 +57,8 @@ func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *h
 		var err error
         limit, err = strconv.Atoi(strLimit)
         if err != nil || limit < -1 {
-			return WriteJson(writer, http.StatusBadRequest, "limit query parameter is not a valid number")
+			limitErr := fmt.Sprintf("limit query param invalid: %s", err)
+			return WriteJson(writer, http.StatusBadRequest, limitErr)
         }
 
     }
@@ -59,7 +72,8 @@ func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *h
 		var err error
         offset, err = strconv.Atoi(strOffset)
         if err != nil || offset < -1 {
-			WriteJson(writer, http.StatusBadRequest, "offset query parameter is not a valid number")
+			offsetErr := fmt.Sprintf("offset query param invalid: %s", err)
+			WriteJson(writer, http.StatusBadRequest, offsetErr)
         }
     }
 	log.Printf("offset is: %d", offset)
@@ -67,44 +81,57 @@ func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *h
 	// pageSize := 10
 	serviceSlice, err := server.db.GetAllServices(limit, offset)
 	if err != nil {
-		log.Printf("Error: %s", err)
-		return WriteJson(writer, http.StatusBadRequest, err)
+		err500 := fmt.Sprintf("Server Error: %s", err)
+		log.Println(err500)
+		return WriteJson(writer, http.StatusInternalServerError, err500)
 	}
 	return WriteJson(writer, http.StatusOK, serviceSlice)
 }
 
+//	@Summary	Create new service
+//	@Id			2
+//	@produce	application/json
+//	@Param		mode.CreateServiceRequest	body {object}	true
+//	@Failure	500		{object}	"Server Error: $err"
+//	@Failure	404		{object}	"404 page not found"
+//	@Success	201		{object}	model.Service
+//	@Router		/services/new [post, head]
 func (server *APIServer) handleCreateNewService(writer http.ResponseWriter, req *http.Request) error {
 
 	log.Println("Creating new service")
 	createServReq := new(models.CreateServiceRequest)
 	log.Printf("createServReq: %s", createServReq)
 
+	// TODO: add this to swagger notation
 	err := decodeJSONBody(writer, req, &createServReq)
 	jsonInputCheck(err,  writer)
 
 	service := models.NewService(createServReq.ServiceName, createServReq.ServiceDescription)
 
 	if err := server.db.CreateNewService(service); err != nil {
-		log.Printf("Error creating service: %s", err)
-		return WriteJson(writer, http.StatusBadRequest, err)
+		err500 := fmt.Sprintf("Server Error: %s", err)
+		log.Println(err500)
+		return WriteJson(writer, http.StatusInternalServerError, err500)
 	}
 	successMsg := fmt.Sprintf("Successfully created service: %s", service.ServiceName)
 	log.Println(successMsg)
-	return WriteJson(writer, http.StatusCreated, successMsg)
+	return WriteJson(writer, http.StatusCreated, service)
 }
 
 //	@Summary	Get service by Id
 //	@Id			3
 //	@produce	application/json
-//	@Param		name	query		string	true	"Input name"
-//	@Success	200		{object}	ServiceResponse
-//	@Failure	400		{object}	message
+//	@Param		serviceId	query		int	true	"serviceId"
+//	@Failure	500		{object}	"Server Error: $err"
+//	@Failure	400		{object}	"Error 400: $err"
 //	@Failure	404		{object}	"404 page not found"
-//	@Failure	404		{object}	message
+//	@Success	200		{object}	model.Service
 //	@Router		/services/id/{ServiceId:[0-9]+} [get, head]
 func (server *APIServer) handleGetServiceById(writer http.ResponseWriter, req *http.Request) error {
 	serviceId, err := getServiceId(req)
 	if err != nil {
+		err400 := fmt.Sprintf("Error 400: %s", err)
+		log.Println(err400)
 		return WriteJson(writer, http.StatusBadRequest, err)
 	}
 
@@ -112,8 +139,9 @@ func (server *APIServer) handleGetServiceById(writer http.ResponseWriter, req *h
 	fmt.Printf("checking for serviceId %d", serviceId)
 	service, err := server.db.GetServiceById(serviceId)
 	if err != nil {
-		log.Printf("Error: %s", err)
-		return WriteJson(writer, http.StatusNotFound, "Error: serviceId not found")
+		err500 := fmt.Sprintf("Server Error: %s", err)
+		log.Println(err500)
+		return WriteJson(writer, http.StatusInternalServerError, err500)
 	}
 
 	return WriteJson(writer, http.StatusOK, service)
@@ -123,8 +151,8 @@ func (server *APIServer) handleGetServiceById(writer http.ResponseWriter, req *h
 //	@Id			4
 //	@produce	application/json
 //	@Param		serviceId	query		int	true	"serviceId"
-//	@Failure	400		{object}	"invalid serviceidstr $serviceIdStr"
 //	@Failure	500		{object}	"Server Error: $err"
+//	@Failure	400		{object}	"Error 400: $err"
 //	@Failure	404		{object}	"404 page not found"
 //	@Failure	404		{object}	"Could not find serviceId: $serviceId"
 //	@Success	200		{object}	"deleted $serviceId"
@@ -132,15 +160,17 @@ func (server *APIServer) handleGetServiceById(writer http.ResponseWriter, req *h
 func (server *APIServer) handleDeleteServiceById(writer http.ResponseWriter, req *http.Request) error {
 	serviceId, err := getServiceId(req)
 	if err != nil {
-		log.Printf("Error 400: %s", err)
+		err400 := fmt.Sprintf("Error 400: %s", err)
+		log.Println(err400)
 		return WriteJson(writer, http.StatusBadRequest, err)
 	}
 
 	fmt.Printf("Deleting service with serviceId %d", serviceId)
 	numDeleted, err := server.db.DeleteServiceById(serviceId)
 	if err != nil {
-		log.Printf("Error 500: %s", err)
-		return WriteJson(writer, http.StatusInternalServerError, err)
+		err500 := fmt.Sprintf("Server Error: %s", err)
+		log.Println(err500)
+		return WriteJson(writer, http.StatusInternalServerError, err500)
 	}
 
 	if numDeleted == 0 {
@@ -156,7 +186,7 @@ func (server *APIServer) handleDeleteServiceById(writer http.ResponseWriter, req
 //	@Id			5
 //	@produce	application/json
 //	@Param		serviceId	query	int	true	"serviceId"
-//	@Failure	400		{object}	"invalid serviceidstr $serviceIdStr"
+//	@Failure	400		{object}	"Error 400: $err"
 //	@Failure	404		{object}	"404 page not found"
 //	@Failure	500		{object}	"Server Error: $err"
 //	@Success	200		{object}	serviceVersions
@@ -164,15 +194,17 @@ func (server *APIServer) handleDeleteServiceById(writer http.ResponseWriter, req
 func (server *APIServer) handleGetServiceVersionsById(writer http.ResponseWriter, req *http.Request) error {
 	serviceId, err := getServiceId(req)
 	if err != nil {
-		log.Printf("Error 400: %s", err)
+		err400 := fmt.Sprintf("Error 400: %s", err)
+		log.Println(err400)
 		return WriteJson(writer, http.StatusBadRequest, err)
 	}
 
 	fmt.Printf("checking for serviceId %d", serviceId)
 	serviceVersions, err := server.db.GetServiceVersionsById(serviceId)
 	if err != nil {
-		log.Printf("Error 500: %s", err)
-		return WriteJson(writer, http.StatusInternalServerError, err)
+		err500 := fmt.Sprintf("Server Error: %s", err)
+		log.Println(err500)
+		return WriteJson(writer, http.StatusInternalServerError, fmt.Sprintf("Server Error: %s", err500))
 	}
 
 	// TODO: implement 404 for serviceId not found
@@ -184,7 +216,7 @@ func (server *APIServer) handleGetServiceVersionsById(writer http.ResponseWriter
 //	@Id			6
 //	@produce	application/json
 //	@Param		serviceName	query	string	true	"serviceName"
-//	@Failure	500		{object}	"$err"
+//	@Failure	500		{object}	"Server Error: $err"
 //	@Failure	404		{object}	"404 page not found"
 //	@Success	200		{object}	service
 //	@Router		/services/name/{ServiceName:[a-zA-Z0-9]+} [get, head]
@@ -196,8 +228,9 @@ func (server *APIServer) handleGetServiceByName(writer http.ResponseWriter, req 
 	fmt.Printf("checking for serviceName %s", serviceName)
 	service, err := server.db.GetServiceByName(serviceName)
 	if err != nil {
-		log.Printf("Error 500: %s", err)
-		return WriteJson(writer, http.StatusInternalServerError, err)
+		err500 := fmt.Sprintf("Server Error: %s", err)
+		log.Println(err500)
+		return WriteJson(writer, http.StatusInternalServerError, err500)
 	}
 
 	return WriteJson(writer, http.StatusOK, service)
@@ -207,7 +240,7 @@ func (server *APIServer) handleGetServiceByName(writer http.ResponseWriter, req 
 //	@Id			6
 //	@produce	application/json
 //	@Success	200		{object}	"service is up and running"
-//	@Router		/services/name/{ServiceName:[a-zA-Z0-9]+} [get, head]
+//	@Router		/health [get, head]
 func (server *APIServer) handleGetHealth(writer http.ResponseWriter, req *http.Request) error {
 	return WriteJson(writer, http.StatusOK, "service is up and running")
 }
