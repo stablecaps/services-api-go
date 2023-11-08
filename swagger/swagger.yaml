@@ -1,0 +1,17 @@
+info:
+  contact:
+    email: support@swagger.io
+    name: Giri
+    url: http://www.swagger.io/support
+  description: Services API for Dashboard widget
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Service Catalog Dashboard API
+  version: "1.0"
+paths: {}
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"

@@ -11,7 +11,7 @@ type Dbase interface {
 	GetAllServices(int, int) ([]*Service, error)
 	GetServiceByName(string) (*Service, error)
 	GetServiceById(int) (*Service, error)
-	DeleteServiceById(int) error
+	DeleteServiceById(int) (int64, error)
 	GetServiceVersionsById(int) (string, error)
 	CreateNewService(*Service)  error
 }

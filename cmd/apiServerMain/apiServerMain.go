@@ -5,12 +5,24 @@ import (
 	"log"
 	"os"
 
-	_ "github.com/stablecaps/services-api-go/docs"
 	"github.com/stablecaps/services-api-go/pkg/api"
 	"github.com/stablecaps/services-api-go/pkg/config"
 	"github.com/stablecaps/services-api-go/pkg/models"
 )
 
+//	@title			Service Catalog Dashboard API
+//	@version		1.0
+//	@description	Services API for Dashboard widget
+//	@termsOfService	http://swagger.io/terms/
+
+//	@securityDefinitions.basic	BasicAuth
+
+//	@contact.name	Giri
+//	@contact.url	http://www.swagger.io/support
+//	@contact.email	support@swagger.io
+
+//	@license.name	Apache 2.0
+//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
 
 	log.Println("Reading config..")
@@ -39,7 +51,7 @@ func main() {
 	log.Println("Starting up server..")
 	port := fmt.Sprintf(":%s",  config.APIPort)
 	server := api.NewAPIServer(port, dataBase)
-	server.Run()
+	server.Run(port)
 
 }
 

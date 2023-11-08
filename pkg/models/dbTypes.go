@@ -27,6 +27,7 @@ type CreateServiceRequest struct {
 	ServiceDescription string `json:"serviceDescription" validate:"required"`
 }
 
+// Response
 type Service struct {
 	ServiceId int `json:"serviceId"`
 	ServiceName string `json:"serviceName"`

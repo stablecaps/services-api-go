@@ -8,5 +8,8 @@ run:
 runpopdb:
 	./bin/populateDb
 
+doc:
+	swag init --dir cmd/apiServerMain/ --output swagger --exclude data/ -g apiServerMain.go
+
 test:
 	go test $(go list ./... | grep -v /data/) -coverprofile .testCoverage.txt

@@ -123,7 +123,7 @@ func (db *PostgresDb) GetServiceById(ServiceId int) (*Service, error) {
 	return nil, fmt.Errorf("service with ServiceId %d not found", ServiceId)
 }
 
-func (db *PostgresDb) DeleteServiceById(ServiceId int) error {
+func (db *PostgresDb) DeleteServiceById(ServiceId int) (int64, error) {
 	log.Println("Deleting new service in DB")
 
 	query := `delete from services where ServiceId = $1`
@@ -133,17 +133,17 @@ func (db *PostgresDb) DeleteServiceById(ServiceId int) error {
 	)
 	if err != nil {
 		log.Printf("Error: %s", err)
-		return err
+		return 0, err
 	}
 
 	numDeleted, err := res.RowsAffected()
 	if err != nil {
 		log.Printf("Error: %s", err)
-		return err
+		return 0, err
 	}
 	log.Printf("Number of rows deleted: %d", numDeleted)
 
-	return err
+	return numDeleted, err
 }
 
 func (db *PostgresDb) GetServiceVersionsById(ServiceId int) (string, error) {
