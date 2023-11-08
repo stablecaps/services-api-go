@@ -73,3 +73,4 @@ func Readconfig(configFileNameRoot, configFileNameExt string) (configurations *C
 }
 
 // https://medium.com/@bnprashanth256/reading-configuration-files-and-environment-variables-in-go-golang-c2607f912b63
+// https://dev.to/techschoolguru/load-config-from-file-environment-variables-in-golang-with-viper-2j2d

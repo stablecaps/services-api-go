@@ -72,18 +72,20 @@ func (server *APIServer) handleCreateNewService(writer http.ResponseWriter, req 
 	createServReq := new(models.CreateServiceRequest)
 	log.Printf("createServReq: %s", createServReq)
 
-
 	err := decodeJSONBody(writer, req, &createServReq)
 	jsonInputCheck(err,  writer)
 
 	service := models.NewService(createServReq.ServiceName, createServReq.ServiceDescription)
+
 	if err := server.db.CreateNewService(service); err != nil {
 		log.Printf("Error creating service: %s", err)
 		return WriteJson(writer, http.StatusBadRequest, err)
 	}
-	log.Printf("Successfully created service: %s", err)
-	return WriteJson(writer, http.StatusCreated, service)
+	successMsg := fmt.Sprintf("Successfully created service: %s", service.ServiceName)
+	log.Println(successMsg)
+	return WriteJson(writer, http.StatusCreated, successMsg)
 }
+
 
 func (server *APIServer) handleGetServiceById(writer http.ResponseWriter, req *http.Request) error {
 	serviceId, err := getServiceId(req)

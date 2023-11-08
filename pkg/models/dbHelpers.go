@@ -47,10 +47,7 @@ func (db *PostgresDb) GetAllServices(limit, offset int) ([]*Service, error) {
 	defer rows.Close()
 
 	serviceSlice := []*Service{}
-	idx := 0
 	for rows.Next() {
-		idx ++
-		fmt.Printf("\nidx: %d", idx)
 		service, err := scanService(rows)
 		if err !=nil {
 			log.Printf("Error: %s", err)
@@ -70,7 +67,7 @@ func (db *PostgresDb) CreateNewService(service *Service) error {
 	(ServiceName, ServiceDescription, ServiceVersions, CreatedAt)
 	values ($1, $2, $3, $4)`
 
-	resp, err := db.db.Exec(
+	row, err := db.db.Query(
 		query,
 		service.ServiceName,
 		service.ServiceDescription,
@@ -81,8 +78,9 @@ func (db *PostgresDb) CreateNewService(service *Service) error {
 		log.Printf("Error: %s", err)
 		return err
 	}
+	defer row.Close()
 
-	fmt.Printf("%+v\n", resp)
+	fmt.Printf("%+v\n", row)
 	log.Printf("Created new service %s in DB", service.ServiceName)
 	return nil
 }

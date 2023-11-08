@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	_ "github.com/stablecaps/services-api-go/docs"
 	"github.com/stablecaps/services-api-go/pkg/api"
 	"github.com/stablecaps/services-api-go/pkg/config"
 	"github.com/stablecaps/services-api-go/pkg/models"
