@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"slices"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/stablecaps/services-api-go/pkg/models"
@@ -41,14 +42,13 @@ func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *h
 	 //https://stackoverflow.com/questions/57776448/stop-processing-of-http-request-in-go
 	strLimit := req.URL.Query().Get("limit")
 	log.Printf("strLimit is: %s", strLimit)
-	limit := 10
-    // with a value as -1 for gorms Limit method, we'll get a request without limit as default
+	limit := 0
     if strLimit != "" {
 		var err error
         limit, err = strconv.Atoi(strLimit)
         if err != nil || limit < -1 {
-			limitErr := fmt.Sprintf("limit query param invalid: %s", err)
-			return WriteJson(writer, http.StatusBadRequest, limitErr)
+			fmt.Printf("limit query param invalid: %s", err)
+			return WriteJson(writer, http.StatusBadRequest, fmt.Sprintf("limit query param invalid: %s. Must be an int", strLimit))
         }
 
     }
@@ -62,8 +62,8 @@ func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *h
 		var err error
         offset, err = strconv.Atoi(strOffset)
         if err != nil || offset < -1 {
-			offsetErr := fmt.Sprintf("offset query param invalid: %s", err)
-			WriteJson(writer, http.StatusBadRequest, offsetErr)
+			fmt.Printf("offset query param invalid: %s", err)
+			return WriteJson(writer, http.StatusBadRequest, fmt.Sprintf("offset query param invalid: %s. Must be an int", strOffset))
         }
     }
 	log.Printf("offset is: %d", offset)
@@ -77,7 +77,8 @@ func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *h
 		if slices.Contains(existingColumnNames, strOrderColName) {
 			orderColName = strOrderColName
 		} else {
-			fmt.Printf("orderColName query param invalid: %s\n Using default column of serviceId", strOrderColName)
+			colNameErr := fmt.Sprintf("orderColName query param invalid: %s. Must be one of %s.", strOrderColName, strings.Join(existingColumnNames[:], ", "))
+			return WriteJson(writer, http.StatusBadRequest, colNameErr)
 		}
     }
 	log.Printf("orderColName is: %s", orderColName)
@@ -86,11 +87,12 @@ func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *h
 	log.Printf("strOrderDir is: %s", strOrderColName)
 	orderDir := "asc"
     if strOrderColName != "" {
-		existingColumnNames := []string{"asc","desc"}
-		if slices.Contains(existingColumnNames, strOrderDir) {
+		existingDirectionNames := []string{"asc","desc"}
+		if slices.Contains(existingDirectionNames, strOrderDir) {
 			orderDir = strOrderDir
 		} else {
-			fmt.Printf("orderDir query param invalid: %s\n Using default ASC", strOrderDir)
+			fmt.Printf("orderDir query param invalid: %s", strOrderDir)
+			return WriteJson(writer, http.StatusBadRequest, fmt.Sprintf("orderDir query param invalid: %s. Must be one of %s.", strOrderDir, strings.Join(existingDirectionNames[:], ", ")) )
 		}
     }
 	log.Printf("orderDir is: %s", orderDir)

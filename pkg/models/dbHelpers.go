@@ -48,7 +48,6 @@ func (db *PostgresDb) GetAllServices(orderColName, orderDirection string, limit,
 	serviceSlice := []*Service{}
 	println()
 	for rows.Next() {
-		println(" >>>rows", rows)
 		service, err := scanService(rows)
 		if err !=nil {
 			log.Printf("Error: %s", err)
@@ -57,11 +56,6 @@ func (db *PostgresDb) GetAllServices(orderColName, orderDirection string, limit,
 
 		serviceSlice = append(serviceSlice, service)
 	}
-
-	for i, v := range serviceSlice {
-		fmt.Printf("%d - %v\n", i, v.ServiceName)
-	}
-
 
 	log.Println("DB lookup sucessful")
 	return serviceSlice, nil
@@ -189,6 +183,5 @@ func scanService(rows *sql.Rows) (*Service, error) {
 		&service.ServiceVersions,
 		&service.CreatedAt,
 	)
-	println(">>> xxx", service.ServiceName)
 	return service, err
 }
