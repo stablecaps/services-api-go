@@ -1,4 +1,4 @@
-package main
+package models
 
 import (
 	"database/sql"
@@ -9,46 +9,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type Dbase interface {
-	GetAllServices() ([]*Service, error)
-	GetServiceByName(string) (*Service, error)
-	GetServiceById(int) (*Service, error)
-	DeleteServiceById(int) error
-	GetServiceVersionsById(int) (string, error)
-	CreateService(*Service)  error
-}
-
-type PostgresDb struct {
-	db *sql.DB
-}
-
-func NewPostgresDb() (*PostgresDb, error) {
-	// TODO: make password secret
-	connStr := "user=postgres dbname=postgres password=mysecretpassword sslmode=disable"
-
-	db, err := sql.Open("postgres", connStr)
-	if err != nil {
-		log.Fatal(err)
-		return nil, err
-	}
-
-	if err := db.Ping(); err != nil {
-		log.Printf("Error: %s", err)
-		return nil, err
-	}
-
-	log.Println("Connected to db..")
-	return &PostgresDb{
-		db: db,
-	}, nil
-
-}
-
-func (db *PostgresDb) Init() error {
-	return db.CreateServiceTable()
-}
-
-func (db *PostgresDb) CreateServiceTable() error {
+func (db *PostgresDb) CreateTable() error {
 	query := `create table if not exists services (
 		ServiceId serial primary key,
 		ServiceName varchar(50),
@@ -63,10 +24,20 @@ func (db *PostgresDb) CreateServiceTable() error {
 
 ////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////
-func (db *PostgresDb) GetAllServices() ([]*Service, error) {
+func (db *PostgresDb) GetAllServices(orderColName, orderDirection string, limit, offset int) ([]*Service, error) {
+
 	log.Println("Looking up services in DB")
 
-	query := `select * from services`
+	// check to see if this is good against sql injection
+	// example: SELECT * FROM services ORDER BY serviceId ASC LIMIT 4 OFFSET 0
+	query := fmt.Sprintf("SELECT * FROM services ORDER BY %s %s LIMIT %d OFFSET %d", orderColName, orderDirection, limit, offset)
+
+	log.Printf("SELECT * FROM services ORDER BY %s %s LIMIT %d OFFSET %d",
+		orderColName,
+		orderDirection,
+		limit,
+		offset)
+
 	rows, err := db.db.Query(query)
 	if err != nil {
 		log.Printf("Error: %s", err)
@@ -75,9 +46,9 @@ func (db *PostgresDb) GetAllServices() ([]*Service, error) {
 	defer rows.Close()
 
 	serviceSlice := []*Service{}
+	println()
 	for rows.Next() {
 		service, err := scanService(rows)
-		serviceSlice = append(serviceSlice, service)
 		if err !=nil {
 			log.Printf("Error: %s", err)
 			return nil, err
@@ -85,8 +56,34 @@ func (db *PostgresDb) GetAllServices() ([]*Service, error) {
 
 		serviceSlice = append(serviceSlice, service)
 	}
+
 	log.Println("DB lookup sucessful")
 	return serviceSlice, nil
+}
+
+func (db *PostgresDb) CreateNewService(service *Service) error {
+	log.Println("Creating new service in DB")
+
+	query := `insert into services
+	(ServiceName, ServiceDescription, ServiceVersions, CreatedAt)
+	values ($1, $2, $3, $4)`
+
+	row, err := db.db.Query(
+		query,
+		service.ServiceName,
+		service.ServiceDescription,
+		service.ServiceVersions,
+		service.CreatedAt,
+	)
+	if err != nil {
+		log.Printf("Error: %s", err)
+		return err
+	}
+	defer row.Close()
+
+	fmt.Printf("%+v\n", row)
+	log.Printf("Created new service %s in DB", service.ServiceName)
+	return nil
 }
 
 func (db *PostgresDb) GetServiceByName(ServiceName string) (*Service, error) {
@@ -127,20 +124,33 @@ func (db *PostgresDb) GetServiceById(ServiceId int) (*Service, error) {
 	return nil, fmt.Errorf("service with ServiceId %d not found", ServiceId)
 }
 
-func (db *PostgresDb) DeleteServiceById(ServiceId int) error {
+func (db *PostgresDb) DeleteServiceById(ServiceId int) (int64, error) {
 	log.Println("Deleting new service in DB")
 
 	query := `delete from services where ServiceId = $1`
-	_, err := db.db.Query(
+	res, err := db.db.Exec(
 		query,
 		ServiceId,
 	)
-	return err
+	if err != nil {
+		log.Printf("Error: %s", err)
+		return 0, err
+	}
+
+	numDeleted, err := res.RowsAffected()
+	if err != nil {
+		log.Printf("Error: %s", err)
+		return 0, err
+	}
+	log.Printf("Number of rows deleted: %d", numDeleted)
+
+	return numDeleted, err
 }
 
 func (db *PostgresDb) GetServiceVersionsById(ServiceId int) (string, error) {
 	fmt.Println("\nRetrieving version info for ServiceId: " + strconv.Itoa(ServiceId))
 	query := `select ServiceVersions from services where ServiceId = $1`
+
 	row := db.db.QueryRow(
 		query,
 		ServiceId,
@@ -148,7 +158,6 @@ func (db *PostgresDb) GetServiceVersionsById(ServiceId int) (string, error) {
 	if err := row.Err(); err != nil {
 		return "", err
 	}
-
 
 	var serviceVersions string
 	err := row.Scan(&serviceVersions)
@@ -161,31 +170,6 @@ func (db *PostgresDb) GetServiceVersionsById(ServiceId int) (string, error) {
 
 	fmt.Println("versions: ", serviceVersions)
 	return serviceVersions, nil
-}
-
-func (db *PostgresDb) CreateService(service *Service) error {
-	log.Println("Creating new service in DB")
-
-	query := `insert into services
-	(ServiceName, ServiceDescription, ServiceVersions, CreatedAt)
-	values ($1, $2, $3, $4)`
-
-	resp, err := db.db.Query(
-		query,
-		service.ServiceName,
-		service.ServiceDescription,
-		service.ServiceVersions,
-		service.CreatedAt,
-	)
-
-	if err != nil {
-		log.Printf("Error: %s", err)
-		return err
-	}
-
-	fmt.Printf("%+v\n", resp)
-	log.Printf("Created new service %s in DB", service.ServiceName)
-	return nil
 }
 
 ////////////////////////////////////////////////////////
