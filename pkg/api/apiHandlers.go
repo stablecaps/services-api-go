@@ -37,7 +37,7 @@ func makeHTTPHandleFunc(f ApiFunc) http.HandlerFunc {
 //	@Success	200		message	model.Service
 //	@Router		/services [get, head]
 func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *http.Request) error {
-
+	 //https://stackoverflow.com/questions/57776448/stop-processing-of-http-request-in-go
 	strLimit := req.URL.Query().Get("limit")
 	log.Printf("strLimit is: %s", strLimit)
 	limit := 10
@@ -67,8 +67,22 @@ func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *h
     }
 	log.Printf("offset is: %d", offset)
 
+	strOrderCol := req.URL.Query().Get("orderColName")
+	orderColName := req.URL.Query().Get("orderColName")
+	log.Printf("orderColName is: %s", strOrderCol)
+	// orderColName := 1
+    // if strOrderCol != "" {
+	// 	var err error
+    //     orderColName, err = strconv.Atoi(strOrderCol)
+    //     if err != nil || orderColName < 1 || orderColName > 5 {
+	// 		orderColErr := fmt.Sprintf("orderColErr query param invalid: %s", err)
+	// 		WriteJson(writer, http.StatusBadRequest, orderColErr)
+    //     }
+    // }
+	log.Printf("orderColName is: %s", orderColName)
+
 	// pageSize := 10
-	serviceSlice, err := server.db.GetAllServices(limit, offset)
+	serviceSlice, err := server.db.GetAllServices(orderColName, limit, offset)
 	if err != nil {
 		err500 := fmt.Sprintf("Server Error: %s", err)
 		log.Println(err500)

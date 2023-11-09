@@ -24,22 +24,20 @@ func (db *PostgresDb) CreateTable() error {
 
 ////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////
-func (db *PostgresDb) GetAllServices(limit, offset int) ([]*Service, error) {
+func (db *PostgresDb) GetAllServices(orderColName string, limit, offset int) ([]*Service, error) {
 
 	log.Println("Looking up services in DB")
 
 	// query := `select * from services`
-	query := `SELECT * FROM services LIMIT $1 OFFSET $2`
+	// query := `SELECT * FROM services ORDER BY $1 ASC LIMIT $2 OFFSET $3`
+	query := fmt.Sprintf("SELECT * FROM services ORDER BY %s ASC LIMIT %d OFFSET %d", orderColName, limit, offset)
 
-	log.Printf("SELECT * FROM services LIMIT %d OFFSET %d",
+	log.Printf("SELECT * FROM services ORDER BY %s ASC LIMIT %d OFFSET %d",
+		orderColName,
 		limit,
-		offset,)
+		offset)
 
-	rows, err := db.db.Query(
-		query,
-		limit,
-		offset,
-	)
+	rows, err := db.db.Query(query)
 	if err != nil {
 		log.Printf("Error: %s", err)
 		return nil, err
@@ -47,7 +45,9 @@ func (db *PostgresDb) GetAllServices(limit, offset int) ([]*Service, error) {
 	defer rows.Close()
 
 	serviceSlice := []*Service{}
+	println()
 	for rows.Next() {
+		println(" >>>rows", rows)
 		service, err := scanService(rows)
 		if err !=nil {
 			log.Printf("Error: %s", err)
@@ -56,6 +56,12 @@ func (db *PostgresDb) GetAllServices(limit, offset int) ([]*Service, error) {
 
 		serviceSlice = append(serviceSlice, service)
 	}
+
+	for i, v := range serviceSlice {
+		fmt.Printf("%d - %v\n", i, v.ServiceName)
+	}
+
+
 	log.Println("DB lookup sucessful")
 	return serviceSlice, nil
 }
@@ -182,5 +188,6 @@ func scanService(rows *sql.Rows) (*Service, error) {
 		&service.ServiceVersions,
 		&service.CreatedAt,
 	)
+	println(">>> xxx", service.ServiceName)
 	return service, err
 }
