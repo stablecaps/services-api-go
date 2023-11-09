@@ -2,6 +2,7 @@ build:
 	go build -C cmd/apiServerMain -o ../../bin/servicesapi
 	go build -C cmd/populateDb -o ../../bin/populateDb
 	go build -C cmd/paginateTest -o ../../bin/paginateTest
+	go build -C cmd/pathethicTester -o ../../bin/pathethicTester
 
 run:
 	./bin/servicesapi
@@ -18,3 +19,6 @@ doc:
 
 test:
 	go test $(go list ./... | grep -v /data/) -coverprofile .testCoverage.txt
+
+pattest:
+	./bin/pathethicTester

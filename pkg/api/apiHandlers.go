@@ -73,7 +73,7 @@ func validateOffset(strOffset string) int {
 }
 
 func validateColName(strOrderColName string) (string, error) {
-	log.Printf("orderColName is: %s", strOrderColName)
+	log.Printf("strOrderColName is: %s", strOrderColName)
 	orderColName := "serviceId"
     if strOrderColName != "" {
 		var existingColumnNames = []string{"serviceId","serviceName","serviceDescription","serviceVersions","createdat"}
@@ -82,7 +82,6 @@ func validateColName(strOrderColName string) (string, error) {
 		} else {
 			strExistingColumnNames := strings.Join(existingColumnNames[:], ", ")
 			colNameErr := fmt.Errorf("orderColName query param invalid: %s. Must be one of %s", strOrderColName, strExistingColumnNames)
-			println(colNameErr)
 			return "", colNameErr
 		}
     }
@@ -99,7 +98,6 @@ func validateOrderDir(strOrderDir string) (string, error) {
 		} else {
 			strExistingDirectionNames := strings.Join(existingDirectionNames[:], ", ")
 			directionNamesErr := fmt.Errorf("orderDir query param invalid: %s. Must be one of %s", strOrderDir, strExistingDirectionNames)
-			println(directionNamesErr)
 			return "", directionNamesErr
 		}
     }
@@ -145,13 +143,14 @@ func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *h
 	strOrderColName := req.URL.Query().Get("orderColName")
 	orderColName, err := validateColName(strOrderColName)
 	if err != nil {
-		return WriteJson(writer, http.StatusBadRequest, err)
+		println("doobie")
+		return WriteJson(writer, http.StatusBadRequest, fmt.Sprintf("Error 400: %s", err))
 	}
 
 	strOrderDir := req.URL.Query().Get("orderDir")
 	orderDir, err := validateOrderDir(strOrderDir)
 	if err != nil {
-		return WriteJson(writer, http.StatusBadRequest, err)
+		return WriteJson(writer, http.StatusBadRequest, fmt.Sprintf("Error 400: %s", err))
 	}
 
 	serviceSlice, err := server.db.GetAllServices(orderColName, orderDir, limit, offset)

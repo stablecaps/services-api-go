@@ -44,7 +44,6 @@ func MakeRandomService() []byte {
 }
 
 
-
 func SubmitPostRequest(url string, reqBody []byte) {
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(reqBody))
 	if err != nil {
