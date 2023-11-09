@@ -21,4 +21,6 @@
 go.work
 bin/servicesapi
 bin/populateDb
+*.envbin/paginateTest
+bin/paginateTest
 *.env
