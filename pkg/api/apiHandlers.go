@@ -32,6 +32,8 @@ func WriteJson(writer http.ResponseWriter, status int, value any) error {
 func getServiceId(req *http.Request) (int, error) {
 	serviceIdStr := mux.Vars(req)["ServiceId"]
 	serviceId, err := strconv.Atoi(serviceIdStr)
+	// This never gets triggered as a 404 gets returned if path parameter is not an int - so we can remove
+	// handled by gorilla mux {ServiceId:[0-9]+}
 	if err != nil {
 		return serviceId, fmt.Errorf("invalid serviceidstr %s", serviceIdStr)
 	}
@@ -136,7 +138,7 @@ func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *h
 
     strOffset := req.URL.Query().Get("offset")
 	offset := validateOffset(strOffset)
-	if limit == -1 {
+	if offset == -1 {
 		return WriteJson(writer, http.StatusBadRequest, fmt.Sprintf("Error 400: offset query param invalid: %s. Must be an int.", strOffset))
 	}
 

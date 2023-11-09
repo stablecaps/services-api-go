@@ -6,24 +6,32 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strconv"
 
 	"github.com/fatih/color"
 )
 
+// Declaring Global variables
+var testsPassed int = 0
+var testsFailed int = 0
 
 func submitGetRequest(testName, baseURL, endpoint string, paramMap map[string]string, idx, wantedRespCode int) {
 	fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
 	fmt.Printf("Running test %d: -  %s", idx, testName)
-	// add params
-	params := url.Values{}
-	for key, val := range paramMap {
-		fmt.Println(key, val)
-		params.Add(key, val)
-	}
 
 	u, _ := url.ParseRequestURI(baseURL)
 	u.Path = endpoint
-	u.RawQuery = params.Encode()
+
+	// add params
+	if len(paramMap) > 0 {
+	params := url.Values{}
+		for key, val := range paramMap {
+			fmt.Println(key, val)
+			params.Add(key, val)
+		}
+		u.RawQuery = params.Encode()
+	}
+
 	urlStr := fmt.Sprintf("%v", u)
 	log.Printf("Calling services with the following url: %s", urlStr)
 
@@ -46,116 +54,25 @@ func submitGetRequest(testName, baseURL, endpoint string, paramMap map[string]st
 
 	if resp.StatusCode != wantedRespCode {
 		color.Red("Error!! unexpected status: %d", resp.StatusCode)
-		//os.Exit(42)
+		testsFailed ++
 	} else {
 		color.Green("Test passed")
+		testsPassed ++
 	}
 }
 
 
+
 func main() {
 
-	// list services pathetic tests
-	baseURL := "http://localhost:8969/"
-	listEndpoint := "/services"
+	// Run tests
+	testListServices()
 
+	testGetServiceById()
 
-	testNameSlice := []string{
-		// Test 400s
-		"badLimit", "outOfRangeLimit", "badOffset", "outOfRangeOffset", "badOrderColName", "badOrderDir",
-		// Test orderDir 200
-		"orderDirasc", "orderDirdesc",
-		// Test orderColName 200
-		"orderColNameServiceId", "orderColNameServiceName", "orderColNameServiceDescription", "orderColNameServiceVersions", "orderColNameCreatedAt",
-	}
-	wantedCodes := []int{400, 400, 400, 400, 400, 400, 200, 200, 200, 200, 200, 200, 200}
-	paramMapList := []map[string]string{
-		// Test 400s
-		{
-			"limit": "fake",
-			"offset": "0",
-			"orderColName": "serviceName",
-			"orderDir": "asc",
-    	},
-		{
-			"limit": "-10",
-			"offset": "0",
-			"orderColName": "serviceName",
-			"orderDir": "asc",
-    	},
-		{
-			"limit": "4",
-			"offset": "fake",
-			"orderColName": "serviceName",
-			"orderDir": "asc",
-    	},
-		{
-			"limit": "4",
-			"offset": "-10",
-			"orderColName": "serviceName",
-			"orderDir": "asc",
-    	},
-		{
-			"limit": "4",
-			"offset": "0",
-			"orderColName": "fake",
-    	},
-		{
-			"limit": "4",
-			"offset": "0",
-			"orderColName": "serviceName",
-			"orderDir": "fake",
-    	},
-		// Test orderColName 200
-		{
-			"limit": "4",
-			"offset": "0",
-			"orderColName": "serviceId",
-			"orderDir": "asc",
-    	},
-		{
-			"limit": "4",
-			"offset": "0",
-			"orderColName": "serviceName",
-			"orderDir": "asc",
-    	},
-		{
-			"limit": "4",
-			"offset": "0",
-			"orderColName": "serviceDescription",
-			"orderDir": "asc",
-    	},
-		{
-			"limit": "4",
-			"offset": "0",
-			"orderColName": "serviceVersions",
-			"orderDir": "asc",
-    	},
-		{
-			"limit": "4",
-			"offset": "0",
-			"orderColName": "createdAt",
-			"orderDir": "asc",
-    	},
-		// Test orderDir 200
-		{
-			"limit": "4",
-			"offset": "0",
-			"orderColName": "serviceName",
-			"orderDir": "asc",
-    	},
+	println("\n\n")
 
-		{
-			"limit": "4",
-			"offset": "0",
-			"orderColName": "serviceName",
-			"orderDir": "asc",
-    	},
-	}
-
-
-	for idx, testName := range testNameSlice {
-		submitGetRequest(testName, baseURL, listEndpoint, paramMapList[idx], idx, wantedCodes[idx])
-	}
+	color.Red("Tests failed: %s", strconv.Itoa(testsFailed))
+	color.Green("Tests passed: %s", strconv.Itoa(testsPassed))
 
 }
