@@ -77,25 +77,25 @@ func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *h
 		if slices.Contains(existingColumnNames, strOrderColName) {
 			orderColName = strOrderColName
 		} else {
-			fmt.Printf("orderColName query param invalid: %s\n Using deafult serviceId", strOrderColName)
+			fmt.Printf("orderColName query param invalid: %s\n Using default column of serviceId", strOrderColName)
 		}
     }
 	log.Printf("orderColName is: %s", orderColName)
 
-	strOrderColDirect := req.URL.Query().Get("orderColName")
-	log.Printf("orderColName is: %s", strOrderColName)
-	orderColNameDirect := "serviceId"
+	strOrderDir := req.URL.Query().Get("orderDir")
+	log.Printf("strOrderDir is: %s", strOrderColName)
+	orderDir := "asc"
     if strOrderColName != "" {
-		existingColumnNames := []string{"serviceId","serviceName","serviceDescription","serviceVersions","createdat"}
-		if slices.Contains(existingColumnNames, strOrderColDirect) {
-			orderColNameDirect = strOrderColDirect
+		existingColumnNames := []string{"asc","desc"}
+		if slices.Contains(existingColumnNames, strOrderDir) {
+			orderDir = strOrderDir
 		} else {
-			fmt.Printf("orderColName query param invalid: %s\n Using deafult serviceId", strOrderColName)
+			fmt.Printf("orderDir query param invalid: %s\n Using default ASC", strOrderDir)
 		}
     }
-	log.Printf("orderColNameDirect is: %s", orderColNameDirect)
+	log.Printf("orderDir is: %s", orderDir)
 
-	serviceSlice, err := server.db.GetAllServices(orderColName, orderColNameDirect, limit, offset)
+	serviceSlice, err := server.db.GetAllServices(orderColName, orderDir, limit, offset)
 	if err != nil {
 		err500 := fmt.Sprintf("Server Error: %s", err)
 		log.Println(err500)
