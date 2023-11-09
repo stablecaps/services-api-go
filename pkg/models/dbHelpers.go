@@ -24,16 +24,17 @@ func (db *PostgresDb) CreateTable() error {
 
 ////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////
-func (db *PostgresDb) GetAllServices(orderColName string, limit, offset int) ([]*Service, error) {
+func (db *PostgresDb) GetAllServices(orderColName, orderDirection string, limit, offset int) ([]*Service, error) {
 
 	log.Println("Looking up services in DB")
 
-	// query := `select * from services`
-	// query := `SELECT * FROM services ORDER BY $1 ASC LIMIT $2 OFFSET $3`
-	query := fmt.Sprintf("SELECT * FROM services ORDER BY %s ASC LIMIT %d OFFSET %d", orderColName, limit, offset)
+	// check to see if this is good against sql injection
+	// example: SELECT * FROM services ORDER BY serviceId ASC LIMIT 4 OFFSET 0
+	query := fmt.Sprintf("SELECT * FROM services ORDER BY %s %s LIMIT %d OFFSET %d", orderColName, orderDirection, limit, offset)
 
-	log.Printf("SELECT * FROM services ORDER BY %s ASC LIMIT %d OFFSET %d",
+	log.Printf("SELECT * FROM services ORDER BY %s %s LIMIT %d OFFSET %d",
 		orderColName,
+		orderDirection,
 		limit,
 		offset)
 

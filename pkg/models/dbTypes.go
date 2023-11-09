@@ -36,6 +36,7 @@ type Service struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
+
 func NewService(ServiceName, ServiceDescription string) *Service {
 	return &Service{
 		ServiceName: ServiceName,

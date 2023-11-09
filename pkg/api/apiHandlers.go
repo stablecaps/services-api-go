@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"slices"
 	"strconv"
 
 	"github.com/gorilla/mux"
@@ -67,22 +68,34 @@ func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *h
     }
 	log.Printf("offset is: %d", offset)
 
-	strOrderCol := req.URL.Query().Get("orderColName")
-	orderColName := req.URL.Query().Get("orderColName")
-	log.Printf("orderColName is: %s", strOrderCol)
-	// orderColName := 1
-    // if strOrderCol != "" {
-	// 	var err error
-    //     orderColName, err = strconv.Atoi(strOrderCol)
-    //     if err != nil || orderColName < 1 || orderColName > 5 {
-	// 		orderColErr := fmt.Sprintf("orderColErr query param invalid: %s", err)
-	// 		WriteJson(writer, http.StatusBadRequest, orderColErr)
-    //     }
-    // }
+
+	strOrderColName := req.URL.Query().Get("orderColName")
+	log.Printf("orderColName is: %s", strOrderColName)
+	orderColName := "serviceId"
+    if strOrderColName != "" {
+		existingColumnNames := []string{"serviceId","serviceName","serviceDescription","serviceVersions","createdat"}
+		if slices.Contains(existingColumnNames, strOrderColName) {
+			orderColName = strOrderColName
+		} else {
+			fmt.Printf("orderColName query param invalid: %s\n Using deafult serviceId", strOrderColName)
+		}
+    }
 	log.Printf("orderColName is: %s", orderColName)
 
-	// pageSize := 10
-	serviceSlice, err := server.db.GetAllServices(orderColName, limit, offset)
+	strOrderColDirect := req.URL.Query().Get("orderColName")
+	log.Printf("orderColName is: %s", strOrderColName)
+	orderColNameDirect := "serviceId"
+    if strOrderColName != "" {
+		existingColumnNames := []string{"serviceId","serviceName","serviceDescription","serviceVersions","createdat"}
+		if slices.Contains(existingColumnNames, strOrderColDirect) {
+			orderColNameDirect = strOrderColDirect
+		} else {
+			fmt.Printf("orderColName query param invalid: %s\n Using deafult serviceId", strOrderColName)
+		}
+    }
+	log.Printf("orderColNameDirect is: %s", orderColNameDirect)
+
+	serviceSlice, err := server.db.GetAllServices(orderColName, orderColNameDirect, limit, offset)
 	if err != nil {
 		err500 := fmt.Sprintf("Server Error: %s", err)
 		log.Println(err500)
