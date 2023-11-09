@@ -62,12 +62,14 @@ func submitGetRequest(testName, baseURL, endpoint string, paramMap map[string]st
 }
 
 
-
 func main() {
 
 	// Run tests
 	testListServices()
 
+	println("\n#######################")
+	println("#######################")
+	println("#######################")
 	testGetServiceById()
 
 	println("\n\n")
