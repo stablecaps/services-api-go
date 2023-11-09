@@ -21,6 +21,95 @@ type ApiError struct {
 
 ////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////
+func WriteJson(writer http.ResponseWriter, status int, value any) error {
+	writer.Header().Add("Content-Type", "application/json")
+	writer.WriteHeader(status)
+
+	jsonResponse := json.NewEncoder(writer).Encode(value)
+	return jsonResponse
+}
+
+func getServiceId(req *http.Request) (int, error) {
+	serviceIdStr := mux.Vars(req)["ServiceId"]
+	serviceId, err := strconv.Atoi(serviceIdStr)
+	if err != nil {
+		return serviceId, fmt.Errorf("invalid serviceidstr %s", serviceIdStr)
+	}
+
+	return serviceId, nil
+}
+
+func validateLimit(strLimit string) int {
+	// strLimit := req.URL.Query().Get("limit")
+	log.Printf("strLimit is: %s", strLimit)
+	limit := -1
+    if strLimit != "" {
+		var err error
+        limit, err = strconv.Atoi(strLimit)
+        if err != nil || limit < -1 {
+			fmt.Printf("limit query param invalid: %s. Aborting..", err)
+			// return WriteJson(writer, http.StatusBadRequest, fmt.Sprintf("limit query param invalid: %s. Must be an int", strLimit))
+			return -1
+        }
+
+    }
+	log.Printf("limit is: %d", limit)
+	return limit
+}
+
+func validateOffset(strOffset string) int {
+	log.Printf("strOffset is: %s", strOffset)
+	offset := -1
+    if strOffset != "" {
+		var err error
+        offset, err = strconv.Atoi(strOffset)
+        if err != nil || offset < -1 {
+			fmt.Printf("offset query param invalid: %s. Aborting..", err)
+			return -1
+        }
+    }
+	log.Printf("offset is: %d", offset)
+	return offset
+}
+
+func validateColName(strOrderColName string) (string, error) {
+	log.Printf("orderColName is: %s", strOrderColName)
+	orderColName := "serviceId"
+    if strOrderColName != "" {
+		var existingColumnNames = []string{"serviceId","serviceName","serviceDescription","serviceVersions","createdat"}
+		if slices.Contains(existingColumnNames, strOrderColName) {
+			orderColName = strOrderColName
+		} else {
+			strExistingColumnNames := strings.Join(existingColumnNames[:], ", ")
+			colNameErr := fmt.Errorf("orderColName query param invalid: %s. Must be one of %s", strOrderColName, strExistingColumnNames)
+			println(colNameErr)
+			return "", colNameErr
+		}
+    }
+	return orderColName, nil
+}
+
+func validateOrderDir(strOrderDir string) (string, error) {
+	log.Printf("strOrderDir is: %s", strOrderDir)
+	orderDir := "asc"
+    if strOrderDir != "" {
+		existingDirectionNames := []string{"asc","desc"}
+		if slices.Contains(existingDirectionNames, strOrderDir) {
+			orderDir = strOrderDir
+		} else {
+			strExistingDirectionNames := strings.Join(existingDirectionNames[:], ", ")
+			directionNamesErr := fmt.Errorf("orderDir query param invalid: %s. Must be one of %s", strOrderDir, strExistingDirectionNames)
+			println(directionNamesErr)
+			return "", directionNamesErr
+		}
+    }
+	log.Printf("orderDir is: %s", orderDir)
+	return orderDir, nil
+}
+
+
+////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
 func makeHTTPHandleFunc(f ApiFunc) http.HandlerFunc {
 	return func(writer http.ResponseWriter, req *http.Request) {
 		if err := f(writer, req); err != nil {
@@ -39,63 +128,31 @@ func makeHTTPHandleFunc(f ApiFunc) http.HandlerFunc {
 //	@Success	200		message	model.Service
 //	@Router		/services [get, head]
 func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *http.Request) error {
-	 //https://stackoverflow.com/questions/57776448/stop-processing-of-http-request-in-go
+	//https://stackoverflow.com/questions/57776448/stop-processing-of-http-request-in-go
+
 	strLimit := req.URL.Query().Get("limit")
-	log.Printf("strLimit is: %s", strLimit)
-	limit := 0
-    if strLimit != "" {
-		var err error
-        limit, err = strconv.Atoi(strLimit)
-        if err != nil || limit < -1 {
-			fmt.Printf("limit query param invalid: %s", err)
-			return WriteJson(writer, http.StatusBadRequest, fmt.Sprintf("limit query param invalid: %s. Must be an int", strLimit))
-        }
-
-    }
-	log.Printf("limit is: %d", limit)
-
+	limit := validateLimit(strLimit)
+	if limit == -1 {
+		return WriteJson(writer, http.StatusBadRequest, fmt.Sprintf("limit query param invalid: %s. Must be an int", strLimit))
+	}
 
     strOffset := req.URL.Query().Get("offset")
-	log.Printf("strOffset is: %s", strOffset)
-	offset := 0
-    if strOffset != "" {
-		var err error
-        offset, err = strconv.Atoi(strOffset)
-        if err != nil || offset < -1 {
-			fmt.Printf("offset query param invalid: %s", err)
-			return WriteJson(writer, http.StatusBadRequest, fmt.Sprintf("offset query param invalid: %s. Must be an int", strOffset))
-        }
-    }
-	log.Printf("offset is: %d", offset)
-
+	offset := validateOffset(strOffset)
+	if limit == -1 {
+		return WriteJson(writer, http.StatusBadRequest, fmt.Sprintf("offset query param invalid: %s. Must be an int.", strOffset))
+	}
 
 	strOrderColName := req.URL.Query().Get("orderColName")
-	log.Printf("orderColName is: %s", strOrderColName)
-	orderColName := "serviceId"
-    if strOrderColName != "" {
-		existingColumnNames := []string{"serviceId","serviceName","serviceDescription","serviceVersions","createdat"}
-		if slices.Contains(existingColumnNames, strOrderColName) {
-			orderColName = strOrderColName
-		} else {
-			colNameErr := fmt.Sprintf("orderColName query param invalid: %s. Must be one of %s.", strOrderColName, strings.Join(existingColumnNames[:], ", "))
-			return WriteJson(writer, http.StatusBadRequest, colNameErr)
-		}
-    }
-	log.Printf("orderColName is: %s", orderColName)
+	orderColName, err := validateColName(strOrderColName)
+	if err != nil {
+		return WriteJson(writer, http.StatusBadRequest, err)
+	}
 
 	strOrderDir := req.URL.Query().Get("orderDir")
-	log.Printf("strOrderDir is: %s", strOrderColName)
-	orderDir := "asc"
-    if strOrderColName != "" {
-		existingDirectionNames := []string{"asc","desc"}
-		if slices.Contains(existingDirectionNames, strOrderDir) {
-			orderDir = strOrderDir
-		} else {
-			fmt.Printf("orderDir query param invalid: %s", strOrderDir)
-			return WriteJson(writer, http.StatusBadRequest, fmt.Sprintf("orderDir query param invalid: %s. Must be one of %s.", strOrderDir, strings.Join(existingDirectionNames[:], ", ")) )
-		}
-    }
-	log.Printf("orderDir is: %s", orderDir)
+	orderDir, err := validateOrderDir(strOrderDir)
+	if err != nil {
+		return WriteJson(writer, http.StatusBadRequest, err)
+	}
 
 	serviceSlice, err := server.db.GetAllServices(orderColName, orderDir, limit, offset)
 	if err != nil {
@@ -261,25 +318,4 @@ func (server *APIServer) handleGetServiceByName(writer http.ResponseWriter, req 
 //	@Router		/health [get, head]
 func (server *APIServer) handleGetHealth(writer http.ResponseWriter, req *http.Request) error {
 	return WriteJson(writer, http.StatusOK, "service is up and running")
-}
-
-
-////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////
-func WriteJson(writer http.ResponseWriter, status int, value any) error {
-	writer.Header().Add("Content-Type", "application/json")
-	writer.WriteHeader(status)
-
-	jsonResponse := json.NewEncoder(writer).Encode(value)
-	return jsonResponse
-}
-
-func getServiceId(req *http.Request) (int, error) {
-	serviceIdStr := mux.Vars(req)["ServiceId"]
-	serviceId, err := strconv.Atoi(serviceIdStr)
-	if err != nil {
-		return serviceId, fmt.Errorf("invalid serviceidstr %s", serviceIdStr)
-	}
-
-	return serviceId, nil
 }
