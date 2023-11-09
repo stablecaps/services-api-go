@@ -76,7 +76,7 @@ func validateColName(strOrderColName string) (string, error) {
 	log.Printf("strOrderColName is: %s", strOrderColName)
 	orderColName := "serviceId"
     if strOrderColName != "" {
-		var existingColumnNames = []string{"serviceId","serviceName","serviceDescription","serviceVersions","createdat"}
+		var existingColumnNames = []string{"serviceid","servicename","servicedescription","serviceversions","createdat"}
 		if slices.Contains(existingColumnNames, strOrderColName) {
 			orderColName = strOrderColName
 		} else {
@@ -131,28 +131,28 @@ func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *h
 	strLimit := req.URL.Query().Get("limit")
 	limit := validateLimit(strLimit)
 	if limit == -1 {
-		return WriteJson(writer, http.StatusBadRequest, fmt.Sprintf("limit query param invalid: %s. Must be an int", strLimit))
+		return WriteJson(writer, http.StatusBadRequest, fmt.Sprintf("Error 400: limit query param invalid: %s. Must be an int", strLimit))
 	}
 
     strOffset := req.URL.Query().Get("offset")
 	offset := validateOffset(strOffset)
 	if limit == -1 {
-		return WriteJson(writer, http.StatusBadRequest, fmt.Sprintf("offset query param invalid: %s. Must be an int.", strOffset))
+		return WriteJson(writer, http.StatusBadRequest, fmt.Sprintf("Error 400: offset query param invalid: %s. Must be an int.", strOffset))
 	}
 
 	strOrderColName := req.URL.Query().Get("orderColName")
-	orderColName, err := validateColName(strOrderColName)
+	orderColName, err := validateColName(strings.ToLower(strOrderColName))
 	if err != nil {
-		println("doobie")
 		return WriteJson(writer, http.StatusBadRequest, fmt.Sprintf("Error 400: %s", err))
 	}
 
 	strOrderDir := req.URL.Query().Get("orderDir")
-	orderDir, err := validateOrderDir(strOrderDir)
+	orderDir, err := validateOrderDir(strings.ToLower(strOrderDir))
 	if err != nil {
 		return WriteJson(writer, http.StatusBadRequest, fmt.Sprintf("Error 400: %s", err))
 	}
 
+	//
 	serviceSlice, err := server.db.GetAllServices(orderColName, orderDir, limit, offset)
 	if err != nil {
 		err500 := fmt.Sprintf("Server Error: %s", err)

@@ -24,4 +24,4 @@ bin/populateDb
 *.envbin/paginateTest
 bin/paginateTest
 *.env
-bin/pathethicTester
+bin/patheticTester
