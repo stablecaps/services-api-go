@@ -1,5 +1,11 @@
 package main
 
+import (
+	"fmt"
+
+	"github.com/stablecaps/services-api-go/internal/dbtools"
+)
+
 // TODO: make these functions more modular
 func testListServices() {
 	// list services pathetic tests
@@ -102,6 +108,14 @@ func testListServices() {
 
 
 	for idx, testName := range testNameSlice {
-		submitGetRequest(testName, baseURL, listEndpoint, paramMapList[idx], idx, wantedCodes[idx])
+		fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
+		fmt.Printf("Running test %d: -  %s", idx, testName)
+		respStatusCode := dbtools.SubmitGetRequest(baseURL, listEndpoint, paramMapList[idx])
+
+		if respStatusCode == wantedCodes[idx] {
+			globalTestCounterPass(respStatusCode)
+		} else {
+			globalTestCounterFail(respStatusCode)
+		}
 	}
 }
