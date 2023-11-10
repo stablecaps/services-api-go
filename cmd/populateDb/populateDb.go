@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	dbtools "github.com/stablecaps/services-api-go/internal/populateDb"
+	dbtools "github.com/stablecaps/services-api-go/internal/dbtools"
 )
 
 

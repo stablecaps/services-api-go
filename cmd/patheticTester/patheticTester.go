@@ -15,6 +15,18 @@ import (
 var testsPassed int = 0
 var testsFailed int = 0
 
+
+func globalTestCounterPass(statusCode int) {
+	color.Green("Test passed: %d", statusCode)
+	testsPassed ++
+}
+
+
+func globalTestCounterFail(statusCode int) {
+	color.Red("Error!! unexpected status: %d", statusCode)
+	testsFailed ++
+}
+
 // TODO: make these functions more modular
 func submitGetRequest(testName, baseURL, endpoint string, paramMap map[string]string, idx, wantedRespCode int) {
 	fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
@@ -53,12 +65,14 @@ func submitGetRequest(testName, baseURL, endpoint string, paramMap map[string]st
 	bodyString := string(body)
 	log.Print(bodyString)
 
-	if resp.StatusCode != wantedRespCode {
-		color.Red("Error!! unexpected status: %d", resp.StatusCode)
-		testsFailed ++
+	if resp.StatusCode == wantedRespCode {
+		globalTestCounterPass(resp.StatusCode)
+		// color.Red("Error!! unexpected status: %d", resp.StatusCode)
+		// testsFailed ++
 	} else {
-		color.Green("Test passed")
-		testsPassed ++
+		// color.Green("Test passed")
+		globalTestCounterFail(resp.StatusCode)
+		//testsPassed ++
 	}
 }
 
@@ -80,16 +94,15 @@ func main() {
 	// Run tests
 	testListServices()
 
-	println("\n#######################")
-	println("#######################")
-	println("#######################")
+	// println("\n#######################")
+	// println("#######################")
+	// println("#######################")
 
 	testGetServiceById()
 
 	// Ran out of time for further tests
 	// submitDeleteRequest()
 	println("\n\n")
-
 	color.Red("Tests failed: %s", strconv.Itoa(testsFailed))
 	color.Green("Tests passed: %s", strconv.Itoa(testsPassed))
 
