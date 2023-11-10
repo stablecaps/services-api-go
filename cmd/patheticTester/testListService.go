@@ -1,6 +1,6 @@
 package main
 
-// TODO move this to tests
+// TODO: make these functions more modular
 func testListServices() {
 	// list services pathetic tests
 	baseURL := "http://localhost:8969/"

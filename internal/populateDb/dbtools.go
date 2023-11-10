@@ -37,8 +37,22 @@ func MakeRandomService() []byte {
 
 	body := []byte(fmt.Sprintf(`{
 		"serviceName": "%s",
-		"ServiceDescription": "%s"
+		"serviceDescription": "%s"
 	}`, randomName, radomDesc) )
+
+	return body
+}
+
+func MakeExplicitService(name, description, versions string) []byte {
+
+	log.Printf("name is %s", name)
+	log.Printf("description is %s", description)
+
+	body := []byte(fmt.Sprintf(`{
+		"serviceName": "%s",
+		"serviceDescription": "%s",
+		"ServiceVersions": "%s"
+	}`, name, description, versions) )
 
 	return body
 }
@@ -67,6 +81,42 @@ func SubmitPostRequest(url string, reqBody []byte) {
 	derr := json.NewDecoder(res.Body).Decode(post)
 	if derr != nil {
 		log.Printf("Error decoding post response: %s", err)
+		log.Println(res.Body)
+		os.Exit(42)
+	}
+
+	if res.StatusCode != http.StatusCreated {
+		log.Printf("Error unexpected status: %d", res.StatusCode)
+		os.Exit(42)
+	}
+
+	fmt.Println("Id:", post.ServiceName)
+	fmt.Println("Title:", post.ServiceDescription)
+}
+
+func SubmitExplicitPostRequest(url string, reqBody []byte) {
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(reqBody))
+	if err != nil {
+		log.Printf("Error creating post request: %s", err)
+		os.Exit(42)
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		log.Println("Error making post request")
+		os.Exit(42)
+	}
+
+	defer res.Body.Close()
+
+	//
+	post := &models.CreateExplicitServiceRequest{}
+	derr := json.NewDecoder(res.Body).Decode(post)
+	if derr != nil {
+		log.Printf("Error decoding post response: %s", derr)
 		log.Println(res.Body)
 		os.Exit(42)
 	}

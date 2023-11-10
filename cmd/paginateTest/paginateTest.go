@@ -18,10 +18,11 @@ func main() {
 
 	numServices := 500
 
-	page := 0
-	limit := 4
-	offsetInc := (page - 1) * limit
+	page := 1
+	limit := 5
+	offsetInc := (limit * page) - limit //(page - 1) * limit
 	for offset := 0; offset <= numServices; offset = offset + offsetInc {
+		fmt.Printf("offset & page: %d & %d\n", offset, page)
 		params := url.Values{}
 		params.Add("limit", strconv.Itoa(limit))
 		params.Add("offset", strconv.Itoa(offset))

@@ -15,6 +15,7 @@ import (
 var testsPassed int = 0
 var testsFailed int = 0
 
+// TODO: make these functions more modular
 func submitGetRequest(testName, baseURL, endpoint string, paramMap map[string]string, idx, wantedRespCode int) {
 	fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
 	fmt.Printf("Running test %d: -  %s", idx, testName)
@@ -61,6 +62,18 @@ func submitGetRequest(testName, baseURL, endpoint string, paramMap map[string]st
 	}
 }
 
+// TODO: make these functions more modular
+// func submitDeleteRequest(testName, baseURL, endpoint string, paramMap map[string]string, idx, wantedRespCode int) {
+// func submitDeleteRequest() {
+// 	fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
+// 	// 8fmt.Printf("Running test %d: -  %s", idx, testName)
+
+
+// 	// testTime := time.Now().UTC()
+// 	body := dbtools.MakeExplicitService("testDeleter", "a service we will test delete", "v1,v2,v3")
+// 	createNewServiceUrl := "http://localhost:8969/services/new"
+// 	dbtools.SubmitExplicitPostRequest(createNewServiceUrl, body)
+// }
 
 func main() {
 
@@ -70,8 +83,11 @@ func main() {
 	println("\n#######################")
 	println("#######################")
 	println("#######################")
+
 	testGetServiceById()
 
+	// Ran out of time for further tests
+	// submitDeleteRequest()
 	println("\n\n")
 
 	color.Red("Tests failed: %s", strconv.Itoa(testsFailed))

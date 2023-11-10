@@ -84,6 +84,7 @@ func validateColName(strOrderColName string) (string, error) {
 		} else {
 			strExistingColumnNames := strings.Join(existingColumnNames[:], ", ")
 			colNameErr := fmt.Errorf("orderColName query param invalid: %s. Must be one of %s", strOrderColName, strExistingColumnNames)
+			fmt.Println(colNameErr)
 			return "", colNameErr
 		}
     }
@@ -100,6 +101,7 @@ func validateOrderDir(strOrderDir string) (string, error) {
 		} else {
 			strExistingDirectionNames := strings.Join(existingDirectionNames[:], ", ")
 			directionNamesErr := fmt.Errorf("orderDir query param invalid: %s. Must be one of %s", strOrderDir, strExistingDirectionNames)
+			fmt.Println(directionNamesErr)
 			return "", directionNamesErr
 		}
     }
@@ -134,6 +136,8 @@ func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *h
 	limit := validateLimit(strLimit)
 	if limit == -1 {
 		return WriteJson(writer, http.StatusBadRequest, fmt.Sprintf("Error 400: limit query param invalid: %s. Must be an int", strLimit))
+	} else if limit >= 20 {
+		return WriteJson(writer, http.StatusBadRequest, fmt.Sprintf("Error 400: limit query param %s is too high. Max allowed is 20", strLimit))
 	}
 
     strOffset := req.URL.Query().Get("offset")
