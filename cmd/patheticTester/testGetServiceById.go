@@ -6,8 +6,6 @@ import (
 	"github.com/stablecaps/services-api-go/internal/dbtools"
 )
 
-// TODO move this to tests
-// TODO: make these functions more modular
 func testGetServiceById() {
 	baseURL := "http://localhost:8969/"
 	listEndpoint := "/services/id/"

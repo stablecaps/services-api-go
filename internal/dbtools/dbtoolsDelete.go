@@ -4,18 +4,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/stablecaps/services-api-go/pkg/models"
 )
 
 
-func SubmitDeleteRequest(url string, reqBody []byte) models.Service {
+func SubmitDeleteRequest(url string, reqBody []byte) (models.Service, int) {
 
 	resp, body := MakeHttpRequestWrapper(url, "DELETE", nil)
 
-	if resp.StatusCode != http.StatusCreated {
+	if resp.StatusCode != 200 {
 		log.Printf("Error unexpected status: %d", resp.StatusCode)
 		os.Exit(42)
 	}
@@ -33,5 +32,5 @@ func SubmitDeleteRequest(url string, reqBody []byte) models.Service {
 	fmt.Println("Name:", result.ServiceName)
 	fmt.Println("Descripton:", result.ServiceDescription)
 
-	return result
+	return result, resp.StatusCode
 }

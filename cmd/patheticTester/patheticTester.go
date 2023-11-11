@@ -1,11 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/fatih/color"
-	"github.com/stablecaps/services-api-go/internal/dbtools"
 )
 
 // Declaring Global variables
@@ -24,26 +22,6 @@ func globalTestCounterFail(statusCode int) {
 	testsFailed ++
 }
 
-// TODO: make these functions more modular
-// func submitDeleteRequest(testName, baseURL, endpoint string, paramMap map[string]string, idx, wantedRespCode int) {
-func submitDeleteRequest() {
-	fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
-	fmt.Println("Posting sample service to test API delete endpoint")
-
-	body := dbtools.MakeExplicitServiceJson("testDeleter2", "a service we will test delete", "v1,v2,v3")
-	createNewServiceUrl := "http://localhost:8969/services/new"
-
-	postedServiceData := dbtools.SubmitPostRequest(createNewServiceUrl, body)
-
-	fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
-	fmt.Printf("Now Deleting ServiceId %d via API delete endpoint\n", postedServiceData.ServiceId)
-
-	deleteNewServiceUrl := fmt.Sprintf("http://localhost:8969/services/id/%d", postedServiceData.ServiceId)
-	deletedServiceData := dbtools.SubmitDeleteRequest(deleteNewServiceUrl, nil)
-	fmt.Printf("deletedServiceData: %v", deletedServiceData)
-
-
-}
 
 func main() {
 
@@ -55,12 +33,12 @@ func main() {
 	// println("#######################")
 	// println("#######################")
 
-	// testGetServiceById()
+	testGetServiceById()
 
 	// println("\n#######################")
 	// println("#######################")
 	// println("#######################")
-	submitDeleteRequest()
+	testDeleteRequestById()
 
 	println("\n\n")
 	color.Red("Tests failed: %s", strconv.Itoa(testsFailed))
