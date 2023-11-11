@@ -27,18 +27,22 @@ func main() {
 
 
 	// Run tests
-	// testListServices()
+	testGetHealthendpoint()
+	testListServices()
 
-	// println("\n#######################")
-	// println("#######################")
-	// println("#######################")
+	println("\n#######################")
+	println("#######################")
+	println("#######################")
 
 	testGetServiceById()
+	testGetServiceByName()
+	testGetServiceVersionsById()
 
-	// println("\n#######################")
-	// println("#######################")
-	// println("#######################")
-	testDeleteRequestById()
+	println("\n#######################")
+	println("#######################")
+	println("#######################")
+	testDeleteserviceById()
+	testDeleteserviceByIdError()
 
 	println("\n\n")
 	color.Red("Tests failed: %s", strconv.Itoa(testsFailed))

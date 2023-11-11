@@ -8,7 +8,7 @@ import (
 	"net/url"
 )
 
-func SubmitGetRequest(baseURL, endpoint string, paramMap map[string]string) int {
+func SubmitGetRequest(baseURL, endpoint string, paramMap map[string]string) ([]byte, int) {
 
 	u, _ := url.ParseRequestURI(baseURL)
 	u.Path = endpoint
@@ -30,18 +30,18 @@ func SubmitGetRequest(baseURL, endpoint string, paramMap map[string]string) int 
 
 	if err != nil {
 		log.Printf("Request Failed: %s", err)
-		return 0
+		return nil, 0
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("Reading body failed: %s", err)
-		return 0
+		return nil, 0
 	}
 
 	// Log the request body
 	bodyString := string(body)
 	log.Print(bodyString)
 
-	return resp.StatusCode
+	return body, resp.StatusCode
 }

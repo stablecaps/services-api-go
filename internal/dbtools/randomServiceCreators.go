@@ -9,13 +9,13 @@ import (
 )
 
 
-func makeRandomName() string {
+func MakeRandomName() string {
 	babbler := babble.NewBabbler()
 	babbler.Count = 1
 	return babbler.Babble()
 }
 
-func makeRandomDescription(wordCount int) string {
+func MakeRandomDescription(wordCount int) string {
 	babbler := babble.NewBabbler()
 	babbler.Separator = " "
 	babbler.Count = wordCount
@@ -23,9 +23,9 @@ func makeRandomDescription(wordCount int) string {
 }
 
 func MakeRandomService() []byte {
-	randomName := makeRandomName()
+	randomName := MakeRandomName()
 	numWords := rand.Intn(10)
-	radomDesc := makeRandomDescription(numWords)
+	radomDesc := MakeRandomDescription(numWords)
 
 	log.Printf("numWords is %d", numWords)
 	log.Printf("randomName is %s", randomName)

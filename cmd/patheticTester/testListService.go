@@ -109,8 +109,8 @@ func testListServices() {
 
 	for idx, testName := range testNameSlice {
 		fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
-		fmt.Printf("Running test %d: -  %s", idx, testName)
-		respStatusCode := dbtools.SubmitGetRequest(baseURL, listEndpoint, paramMapList[idx])
+		fmt.Printf("Running test %d: -  %s\n", idx, testName)
+		_, respStatusCode := dbtools.SubmitGetRequest(baseURL, listEndpoint, paramMapList[idx])
 
 		if respStatusCode == wantedCodes[idx] {
 			globalTestCounterPass(respStatusCode)

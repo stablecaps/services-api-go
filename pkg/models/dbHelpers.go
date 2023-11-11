@@ -61,6 +61,8 @@ func (db *PostgresDb) GetAllServices(orderColName, orderDirection string, limit,
 	return serviceSlice, nil
 }
 
+// use prepared statements
+// https://go.dev/doc/database/prepared-statements
 func (db *PostgresDb) CreateNewService(service *Service) (*Service, error) {
 	log.Println("Creating new service in DB")
 

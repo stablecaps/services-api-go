@@ -316,7 +316,6 @@ func (server *APIServer) handleGetServiceVersionsById(writer http.ResponseWriter
 //	@produce	application/json
 //	@Param		serviceName	query	string	true	"serviceName"
 //	@Failure	500		message	"Server Error: $err"
-//	@Failure	404		message	"404 page not found"
 //	@Success	200		message	service
 //	@Router		/services/name/{ServiceName:[a-zA-Z0-9]+} [get, head]
 func (server *APIServer) handleGetServiceByName(writer http.ResponseWriter, req *http.Request) error {

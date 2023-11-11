@@ -46,8 +46,6 @@ func SubmitPostRequest(url string, reqBody []byte) (models.Service, int) {
 	fmt.Println("Name:", result.ServiceName)
 	fmt.Println("Descripton:", result.ServiceDescription)
 
-	// os.Exit(42)
-
 	return result, resp.StatusCode
 }
 

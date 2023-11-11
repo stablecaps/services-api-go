@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/stablecaps/services-api-go/pkg/models"
 )
 
 func MakeHttpRequestWrapper(url, httpVerb string, reqBody []byte) (*http.Response, []byte) {
@@ -44,4 +46,16 @@ func MakeHttpRequestWrapper(url, httpVerb string, reqBody []byte) (*http.Respons
 	fmt.Printf("string body: %s", string(body))
 
 	return resp, body
+}
+
+func CreateExplicitService(serviceName, serviceDescriptions, serviceVersions string) models.Service {
+	fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
+	fmt.Println("Posting sample service to test API delete endpoint")
+
+	body := MakeExplicitServiceJson(serviceName, serviceDescriptions, serviceVersions)
+	createNewServiceUrl := "http://localhost:8969/services/new"
+
+	postedServiceData, _ := SubmitPostRequest(createNewServiceUrl, body)
+
+	return postedServiceData
 }
