@@ -85,9 +85,14 @@ func (db *PostgresDb) CreateNewService(service *Service) (*Service, error) {
 	fmt.Printf("%+v\n", rows)
 	log.Printf("Created new service %s in DB", service.ServiceName)
 
-	var newService ServiceReturn
+	var newService *Service
+	var cerr error
 	for rows.Next() {
-		newService, err = scanService(rows)
+		newService, cerr = scanService(rows)
+	}
+	if cerr != nil {
+		log.Printf("Error: %s", err)
+		return nil, fmt.Errorf("error: getting newly created service in db with ServiceName %s", service.ServiceName)
 	}
 	return newService, err
 }

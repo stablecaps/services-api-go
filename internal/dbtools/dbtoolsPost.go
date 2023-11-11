@@ -1,12 +1,9 @@
 package dbtools
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/stablecaps/services-api-go/pkg/models"
@@ -33,35 +30,36 @@ func MakeExplicitServiceJson(name, description, versions string) []byte {
 }
 
 func SubmitPostRequest(url string, reqBody []byte) models.Service {
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(reqBody))
-	if err != nil {
-		log.Println("Error creating post request")
-		os.Exit(42)
-	}
+	// req, err := http.NewRequest("POST", url, bytes.NewBuffer(reqBody))
+	// if err != nil {
+	// 	log.Println("Error creating post request")
+	// 	os.Exit(42)
+	// }
 
-	req.Header.Add("Content-Type", "application/json")
+	// req.Header.Add("Content-Type", "application/json")
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Println("Error making post request")
-		os.Exit(42)
-	}
+	// client := &http.Client{}
+	// resp, err := client.Do(req)
+	// if err != nil {
+	// 	log.Println("Error making post request")
+	// 	os.Exit(42)
+	// }
 
-	defer resp.Body.Close()
+	// defer resp.Body.Close()
 
-	body, derr := io.ReadAll(resp.Body)
-	if derr != nil {
-		log.Printf("Error decoding post respponse: %s", err)
-		log.Println(resp.Body)
-		os.Exit(42)
-	}
-	fmt.Printf("string body: %s", string(body))
+	// body, derr := io.ReadAll(resp.Body)
+	// if derr != nil {
+	// 	log.Printf("Error decoding post respponse: %s", err)
+	// 	log.Println(resp.Body)
+	// 	os.Exit(42)
+	// }
+	// fmt.Printf("string body: %s", string(body))
 
-	if resp.StatusCode != http.StatusCreated {
-		log.Printf("Error unexpected status: %d", resp.StatusCode)
-		os.Exit(42)
-	}
+	// if resp.StatusCode != http.StatusCreated {
+	// 	log.Printf("Error unexpected status: %d", resp.StatusCode)
+	// 	os.Exit(42)
+	// }
+	_, body := MakeHttpRequestWrapper(url, "POST", reqBody)
 
 	// Unmarshal JSON to Go struct
 	var result models.Service

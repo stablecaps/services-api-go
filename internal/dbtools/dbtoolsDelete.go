@@ -3,7 +3,6 @@ package dbtools
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -13,30 +12,8 @@ import (
 
 
 func SubmitDeleteRequest(url string, reqBody []byte) models.Service {
-	req, err := http.NewRequest("DELETE", url, nil)
-	if err != nil {
-		log.Println("Error creating post request")
-		os.Exit(42)
-	}
 
-	req.Header.Add("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Println("Error making post request")
-		os.Exit(42)
-	}
-
-	defer resp.Body.Close()
-
-	body, derr := io.ReadAll(resp.Body)
-	if derr != nil {
-		log.Printf("Error decoding post respponse: %s", err)
-		log.Println(resp.Body)
-		os.Exit(42)
-	}
-	fmt.Printf("string body: %s", string(body))
+	resp, body := MakeHttpRequestWrapper(url, "DELETE", nil)
 
 	if resp.StatusCode != http.StatusCreated {
 		log.Printf("Error unexpected status: %d", resp.StatusCode)

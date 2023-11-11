@@ -47,8 +47,3 @@ func NewService(ServiceName, ServiceDescription string) *Service {
 	}
 }
 
-type ServiceReturn struct {
-	Service *Service
-	err error
-}
-

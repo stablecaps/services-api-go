@@ -36,11 +36,11 @@ func submitDeleteRequest() {
 	postedServiceData := dbtools.SubmitPostRequest(createNewServiceUrl, body)
 
 	fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
-	fmt.Printf("Now Deleting ServiceId %d via API delete endpoint", postedServiceData.ServiceId)
+	fmt.Printf("Now Deleting ServiceId %d via API delete endpoint\n", postedServiceData.ServiceId)
 
-
-	// deletedServiceData := dbtools.SubmitDeleteRequest()
-	// fmt.Printf("deletedServiceData: %v", deletedServiceData)
+	deleteNewServiceUrl := fmt.Sprintf("http://localhost:8969/services/id/%d", postedServiceData.ServiceId)
+	deletedServiceData := dbtools.SubmitDeleteRequest(deleteNewServiceUrl, nil)
+	fmt.Printf("deletedServiceData: %v", deletedServiceData)
 
 
 }
