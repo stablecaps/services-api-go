@@ -1,10 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/fatih/color"
-	_ "github.com/stablecaps/services-api-go/internal/dbtools"
+	"github.com/stablecaps/services-api-go/internal/dbtools"
 )
 
 // Declaring Global variables
@@ -25,30 +26,42 @@ func globalTestCounterFail(statusCode int) {
 
 // TODO: make these functions more modular
 // func submitDeleteRequest(testName, baseURL, endpoint string, paramMap map[string]string, idx, wantedRespCode int) {
-// func submitDeleteRequest() {
-// 	fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
-// 	// 8fmt.Printf("Running test %d: -  %s", idx, testName)
+func submitDeleteRequest() {
+	fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
+	fmt.Println("Posting sample service to test API delete endpoint")
+
+	body := dbtools.MakeExplicitServiceJson("testDeleter2", "a service we will test delete", "v1,v2,v3")
+	createNewServiceUrl := "http://localhost:8969/services/new"
+
+	postedServiceData := dbtools.SubmitPostRequest(createNewServiceUrl, body)
+
+	fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
+	fmt.Printf("Now Deleting ServiceId %d via API delete endpoint", postedServiceData.ServiceId)
 
 
-// 	// testTime := time.Now().UTC()
-// 	body := dbtools.MakeExplicitService("testDeleter", "a service we will test delete", "v1,v2,v3")
-// 	createNewServiceUrl := "http://localhost:8969/services/new"
-// 	dbtools.SubmitExplicitPostRequest(createNewServiceUrl, body)
-// }
+	// deletedServiceData := dbtools.SubmitDeleteRequest()
+	// fmt.Printf("deletedServiceData: %v", deletedServiceData)
+
+
+}
 
 func main() {
 
+
 	// Run tests
-	testListServices()
+	// testListServices()
 
 	// println("\n#######################")
 	// println("#######################")
 	// println("#######################")
 
-	testGetServiceById()
+	// testGetServiceById()
 
-	// Ran out of time for further tests
-	// submitDeleteRequest()
+	// println("\n#######################")
+	// println("#######################")
+	// println("#######################")
+	submitDeleteRequest()
+
 	println("\n\n")
 	color.Red("Tests failed: %s", strconv.Itoa(testsFailed))
 	color.Green("Tests passed: %s", strconv.Itoa(testsPassed))

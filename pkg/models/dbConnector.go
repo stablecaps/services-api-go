@@ -13,7 +13,7 @@ type Dbase interface {
 	GetServiceById(int) (*Service, error)
 	DeleteServiceById(int) (int64, error)
 	GetServiceVersionsById(int) (string, error)
-	CreateNewService(*Service)  error
+	CreateNewService(*Service)  (*Service, error)
 }
 
 type PostgresDb struct {

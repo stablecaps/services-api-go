@@ -61,14 +61,15 @@ func (db *PostgresDb) GetAllServices(orderColName, orderDirection string, limit,
 	return serviceSlice, nil
 }
 
-func (db *PostgresDb) CreateNewService(service *Service) error {
+func (db *PostgresDb) CreateNewService(service *Service) (*Service, error) {
 	log.Println("Creating new service in DB")
 
 	query := `insert into services
 	(ServiceName, ServiceDescription, ServiceVersions, CreatedAt)
-	values ($1, $2, $3, $4)`
+	values ($1, $2, $3, $4)
+	RETURNING *`
 
-	row, err := db.db.Query(
+	rows, err := db.db.Query(
 		query,
 		service.ServiceName,
 		service.ServiceDescription,
@@ -77,13 +78,18 @@ func (db *PostgresDb) CreateNewService(service *Service) error {
 	)
 	if err != nil {
 		log.Printf("Error: %s", err)
-		return err
+		return nil, fmt.Errorf("error: creating service in db with ServiceName %s", service.ServiceName)
 	}
-	defer row.Close()
+	defer rows.Close()
 
-	fmt.Printf("%+v\n", row)
+	fmt.Printf("%+v\n", rows)
 	log.Printf("Created new service %s in DB", service.ServiceName)
-	return nil
+
+	var newService ServiceReturn
+	for rows.Next() {
+		newService, err = scanService(rows)
+	}
+	return newService, err
 }
 
 func (db *PostgresDb) GetServiceByName(ServiceName string) (*Service, error) {

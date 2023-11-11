@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -11,8 +12,13 @@ import (
 	"github.com/stablecaps/services-api-go/pkg/models"
 )
 
+// PrettyPrint to print struct in a readable way
+func PrettyPrint(i interface{}) string {
+    s, _ := json.MarshalIndent(i, "", "\t")
+    return string(s)
+}
 
-func MakeExplicitService(name, description, versions string) []byte {
+func MakeExplicitServiceJson(name, description, versions string) []byte {
 
 	log.Printf("name is %s", name)
 	log.Printf("description is %s", description)
@@ -20,14 +26,13 @@ func MakeExplicitService(name, description, versions string) []byte {
 	body := []byte(fmt.Sprintf(`{
 		"serviceName": "%s",
 		"serviceDescription": "%s",
-		"ServiceVersions": "%s"
+		"serviceVersions": "%s"
 	}`, name, description, versions) )
 
 	return body
 }
 
-
-func SubmitPostRequest(url string, reqBody []byte) {
+func SubmitPostRequest(url string, reqBody []byte) models.Service {
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(reqBody))
 	if err != nil {
 		log.Println("Error creating post request")
@@ -37,64 +42,42 @@ func SubmitPostRequest(url string, reqBody []byte) {
 	req.Header.Add("Content-Type", "application/json")
 
 	client := &http.Client{}
-	res, err := client.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		log.Println("Error making post request")
 		os.Exit(42)
 	}
 
-	defer res.Body.Close()
+	defer resp.Body.Close()
 
-	//
-	post := &models.CreateServiceRequest{}
-	derr := json.NewDecoder(res.Body).Decode(post)
+	body, derr := io.ReadAll(resp.Body)
 	if derr != nil {
-		log.Printf("Error decoding post response: %s", err)
-		log.Println(res.Body)
+		log.Printf("Error decoding post respponse: %s", err)
+		log.Println(resp.Body)
+		os.Exit(42)
+	}
+	fmt.Printf("string body: %s", string(body))
+
+	if resp.StatusCode != http.StatusCreated {
+		log.Printf("Error unexpected status: %d", resp.StatusCode)
 		os.Exit(42)
 	}
 
-	if res.StatusCode != http.StatusCreated {
-		log.Printf("Error unexpected status: %d", res.StatusCode)
+	// Unmarshal JSON to Go struct
+	var result models.Service
+	// Parse []byte to go struct pointer
+	if err := json.Unmarshal(body, &result); err != nil {
+		fmt.Println("Can not unmarshal JSON")
 		os.Exit(42)
 	}
+	fmt.Println(PrettyPrint(result))
 
-	fmt.Println("Id:", post.ServiceName)
-	fmt.Println("Title:", post.ServiceDescription)
+	fmt.Println("ServiceId:", result.ServiceId)
+	fmt.Println("Name:", result.ServiceName)
+	fmt.Println("Descripton:", result.ServiceDescription)
+
+	// os.Exit(42)
+
+	return result
 }
 
-func SubmitExplicitPostRequest(url string, reqBody []byte) {
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(reqBody))
-	if err != nil {
-		log.Printf("Error creating post request: %s", err)
-		os.Exit(42)
-	}
-
-	req.Header.Add("Content-Type", "application/json")
-
-	client := &http.Client{}
-	res, err := client.Do(req)
-	if err != nil {
-		log.Println("Error making post request")
-		os.Exit(42)
-	}
-
-	defer res.Body.Close()
-
-	//
-	post := &models.CreateExplicitServiceRequest{}
-	derr := json.NewDecoder(res.Body).Decode(post)
-	if derr != nil {
-		log.Printf("Error decoding post response: %s", derr)
-		log.Println(res.Body)
-		os.Exit(42)
-	}
-
-	if res.StatusCode != http.StatusCreated {
-		log.Printf("Error unexpected status: %d", res.StatusCode)
-		os.Exit(42)
-	}
-
-	fmt.Println("Id:", post.ServiceName)
-	fmt.Println("Title:", post.ServiceDescription)
-}

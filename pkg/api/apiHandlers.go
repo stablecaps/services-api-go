@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -32,8 +33,8 @@ func WriteJson(writer http.ResponseWriter, status int, value any) error {
 func getServiceId(req *http.Request) (int, error) {
 	serviceIdStr := mux.Vars(req)["ServiceId"]
 	serviceId, err := strconv.Atoi(serviceIdStr)
-	// This never gets triggered as a 404 gets returned if path parameter is not an int - so we can remove
-	// handled by gorilla mux {ServiceId:[0-9]+}
+	// This never gets triggered as a 404 gets returned if path parameter is not an int
+	// handled by gorilla mux path {ServiceId:[0-9]+}. Buit we will keep as a fallback in case anything goes wrong with regex
 	if err != nil {
 		return serviceId, fmt.Errorf("invalid serviceidstr %s", serviceIdStr)
 	}
@@ -50,7 +51,6 @@ func validateLimit(strLimit string) int {
         limit, err = strconv.Atoi(strLimit)
         if err != nil || limit < -1 {
 			fmt.Printf("limit query param invalid: %s. Aborting..", err)
-			// return WriteJson(writer, http.StatusBadRequest, fmt.Sprintf("limit query param invalid: %s. Must be an int", strLimit))
 			return -1
         }
 
@@ -173,7 +173,16 @@ func (server *APIServer) handleGetAllServices(writer http.ResponseWriter, req *h
 //	@produce	application/json
 //	@Param		mode.CreateServiceRequest	body message	true
 //	@Failure	500		message	"Server Error: $err"
+//	@Failure	415		message	"Content-Type header is not application/json"
+//	@Failure	413		message	"Request body must not be larger than 1MB"
 //	@Failure	404		message	"404 page not found"
+//	@Failure	400		message	"Request body contains badly-formed JSON (at position x)"
+//	@Failure	400		message	"Request body contains badly-formed JSON"
+//	@Failure	400		message	"Request body contains an invalid value for the y field (at position x)"
+//	@Failure	400		message	"Request body contains unknown field y"
+//	@Failure	400		message	"Request body must not be empty"
+//	@Failure	400		message	"Error default 500: err"
+//	@Failure	400		message	"Request body must only contain a single JSON object"
 //	@Success	201		message	model.Service
 //	@Router		/services/new [post, head]
 func (server *APIServer) handleCreateNewService(writer http.ResponseWriter, req *http.Request) error {
@@ -183,18 +192,28 @@ func (server *APIServer) handleCreateNewService(writer http.ResponseWriter, req 
 	log.Printf("createServReq: %s", createServReq)
 
 	// TODO: add this to swagger notation
-	err := decodeJSONBody(writer, req, &createServReq)
-	jsonInputCheck(err,  writer)
+	err := errorCheckJSONBody(writer, req, &createServReq)
+	if err != nil {
+		var mr *malformedRequest
+		if errors.As(err, &mr) {
+			http.Error(writer, mr.msg, mr.status)
+		} else {
+			log.Print(err.Error())
+			http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		}
+	}
 
-	service := models.NewService(createServReq.ServiceName, createServReq.ServiceDescription)
+	serviceReq := models.NewService(createServReq.ServiceName, createServReq.ServiceDescription)
 
-	if err := server.db.CreateNewService(service); err != nil {
+	service, err := server.db.CreateNewService(serviceReq)
+	if err != nil {
 		err500 := fmt.Sprintf("Server Error: %s", err)
 		log.Println(err500)
 		return WriteJson(writer, http.StatusInternalServerError, err500)
 	}
 	successMsg := fmt.Sprintf("Successfully created service: %s", service.ServiceName)
 	log.Println(successMsg)
+
 	return WriteJson(writer, http.StatusCreated, service)
 }
 
@@ -242,7 +261,7 @@ func (server *APIServer) handleDeleteServiceById(writer http.ResponseWriter, req
 	if err != nil {
 		err400 := fmt.Sprintf("Error 400: %s", err)
 		log.Println(err400)
-		return WriteJson(writer, http.StatusBadRequest, err)
+		return WriteJson(writer, http.StatusBadRequest, err400)
 	}
 
 	fmt.Printf("Deleting service with serviceId %d", serviceId)
