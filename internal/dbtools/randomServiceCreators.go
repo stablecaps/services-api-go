@@ -28,8 +28,8 @@ func MakeRandomService() []byte {
 	radomDesc := MakeRandomDescription(numWords)
 
 	log.Printf("numWords is %d", numWords)
-	log.Printf("randomName is %s", randomName)
-	log.Printf("radomDesc is %s", radomDesc)
+	log.Printf("service randomName is %s", randomName)
+	log.Printf("service radomDesc is %s", radomDesc)
 
 	body := []byte(fmt.Sprintf(`{
 		"serviceName": "%s",

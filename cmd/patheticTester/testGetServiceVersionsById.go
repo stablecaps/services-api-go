@@ -8,8 +8,7 @@ import (
 )
 
 func testGetServiceVersionsById() {
-	baseURL := "http://localhost:8969/"
-	listEndpoint := "/services/id/"
+	endpoint := "/services/id/"
 
 	expectedServiceVersions := "v1,v2,v3,v4,v5"
 	postedServiceData := dbtools.CreateExplicitService(dbtools.MakeRandomName(), dbtools.MakeRandomDescription(4), expectedServiceVersions)
@@ -28,15 +27,10 @@ func testGetServiceVersionsById() {
 	for idx, testName := range testNameSlice {
 		fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
 		fmt.Printf("Running test %d: -  %s\n", idx, testName)
-		fullListEndpoint := fmt.Sprintf("%s%s", listEndpoint, serviceIdList[idx])
+		fullEndpoint := fmt.Sprintf("%s%s", endpoint, serviceIdList[idx])
 
-		_, respStatusCode := dbtools.SubmitGetRequest(baseURL, fullListEndpoint, paramMapList)
+		resp, _ := dbtools.MakeHttpRequestWrapper(baseURL, fullEndpoint, "GET", paramMapList, nil)
 
-		if respStatusCode == wantedCodes[idx] {
-			globalTestCounterPass(respStatusCode)
-		} else {
-			globalTestCounterFail(respStatusCode)
-		}
-
+		scoreGlobalTestsPassedandFailes(resp.StatusCode, wantedCodes[idx])
 	}
 }

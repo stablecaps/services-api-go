@@ -14,19 +14,15 @@ func testDeleteserviceById() {
 	fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
 	fmt.Printf("Now Deleting ServiceId %d via API delete endpoint\n", postedServiceData.ServiceId)
 
-	deleteNewServiceUrl := fmt.Sprintf("http://localhost:8969/services/id/%d", postedServiceData.ServiceId)
-	respStatusCode := dbtools.SubmitDeleteRequest(deleteNewServiceUrl, nil)
+	fullEndpoint := fmt.Sprintf("/services/id/%d", postedServiceData.ServiceId)
+	paramMapList := map[string]string{}
+	resp, _ := dbtools.MakeHttpRequestWrapper(baseURL, fullEndpoint, "DELETE", paramMapList, nil)
 
-	if respStatusCode == 200 {
-		globalTestCounterPass(respStatusCode)
-	} else {
-		globalTestCounterFail(respStatusCode)
-	}
+scoreGlobalTestsPassedandFailes(resp.StatusCode, 200)
 }
 
 func testDeleteserviceByIdError() {
-	baseURL := "http://localhost:8969/"
-	listEndpoint := "/services/id/"
+	endpoint := "/services/id/"
 
 
 	testNameSlice := []string{
@@ -36,21 +32,19 @@ func testDeleteserviceByIdError() {
 		"goodServiceIdOutOfRange",
 	}
 	wantedCodes := []int{404, 404, 500}
+	paramMapList := map[string]string{}
 	serviceIdList := []string{"fake", "-10", "99999999"}
 
 
 	for idx, testName := range testNameSlice {
 		fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
 		fmt.Printf("Running test %d: -  %s\n", idx, testName)
-		fullDeleteEndpoint := fmt.Sprintf("%s%s%s", baseURL, listEndpoint, serviceIdList[idx])
+		fullEndpoint := fmt.Sprintf("%s%s", endpoint, serviceIdList[idx])
 
-		respStatusCode  := dbtools.SubmitDeleteRequest(fullDeleteEndpoint, nil)
-		fmt.Printf("respStatusCode: %d\n", respStatusCode)
-		if respStatusCode == wantedCodes[idx] {
-			globalTestCounterPass(respStatusCode)
-		} else {
-			globalTestCounterFail(respStatusCode)
-		}
+		resp, _ := dbtools.MakeHttpRequestWrapper(baseURL, fullEndpoint, "GET", paramMapList, nil)
+
+		fmt.Printf("resp.StatusCode: %d\n", resp.StatusCode)
+		scoreGlobalTestsPassedandFailes(resp.StatusCode, wantedCodes[idx])
 
 	}
 }

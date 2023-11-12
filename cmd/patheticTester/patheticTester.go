@@ -1,47 +1,55 @@
 package main
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/fatih/color"
 )
 
 // Declaring Global variables
+var baseURL string = "http://localhost:8969/"
 var testsPassed int = 0
 var testsFailed int = 0
 
-
-func globalTestCounterPass(statusCode int)  {
-	color.Green("Test passed: %d", statusCode)
-	testsPassed ++
+func scoreGlobalTestsPassedandFailes(testCode, wantedCode int) {
+	if testCode == wantedCode {
+		color.Green("Test passed: %d", testCode)
+		testsPassed ++
+	} else {
+		color.Red("Error!! Wanted %d, but got unexpected status: %d", wantedCode, testCode)
+		testsFailed ++
+	}
 }
 
-
-func globalTestCounterFail(statusCode int) {
-	color.Red("Error!! unexpected status: %d", statusCode)
-	testsFailed ++
+func printTestSeperator(testCategory string) {
+	println("\n##################################")
+	color.Yellow(fmt.Sprintf("   >> %s", testCategory))
 }
-
 
 func main() {
 
 
 	// Run tests
+	printTestSeperator("testGetHealthendpoint")
 	testGetHealthendpoint()
+
+	printTestSeperator("testListServices")
 	testListServices()
 
-	println("\n#######################")
-	println("#######################")
-	println("#######################")
-
+	printTestSeperator("testGetServiceById")
 	testGetServiceById()
+
+	printTestSeperator("testGetServiceByName")
 	testGetServiceByName()
+
+	printTestSeperator("testGetServiceVersionsById")
 	testGetServiceVersionsById()
 
-	println("\n#######################")
-	println("#######################")
-	println("#######################")
+	printTestSeperator("testDeleteserviceById")
 	testDeleteserviceById()
+
+	printTestSeperator("testDeleteserviceByIdError")
 	testDeleteserviceByIdError()
 
 	println("\n\n")

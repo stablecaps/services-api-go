@@ -11,7 +11,6 @@ import (
 )
 
 func testGetHealthendpoint() {
-	baseURL := "http://localhost:8969/"
 	healthEndpoint := "/health"
 
 
@@ -27,13 +26,8 @@ func testGetHealthendpoint() {
 		fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
 		fmt.Printf("Running test %d: -  %s\n", idx, testName)
 
-		_, respStatusCode := dbtools.SubmitGetRequest(baseURL, healthEndpoint, paramMapList)
-		if respStatusCode == wantedCodes[idx] {
-			globalTestCounterPass(respStatusCode)
-		} else {
-			globalTestCounterFail(respStatusCode)
-		}
-
+		resp, _ := dbtools.MakeHttpRequestWrapper(baseURL, healthEndpoint, "GET", paramMapList, nil)
+		scoreGlobalTestsPassedandFailes(resp.StatusCode, wantedCodes[idx])
 	}
 }
 

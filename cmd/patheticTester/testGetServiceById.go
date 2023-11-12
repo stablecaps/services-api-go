@@ -7,8 +7,7 @@ import (
 )
 
 func testGetServiceById() {
-	baseURL := "http://localhost:8969/"
-	listEndpoint := "/services/id/"
+	endpoint := "/services/id/"
 
 
 	testNameSlice := []string{
@@ -25,14 +24,10 @@ func testGetServiceById() {
 	for idx, testName := range testNameSlice {
 		fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
 		fmt.Printf("Running test %d: -  %s\n", idx, testName)
-		fullListEndpoint := fmt.Sprintf("%s%s", listEndpoint, serviceIdList[idx])
+		fullEndpoint := fmt.Sprintf("%s%s", endpoint, serviceIdList[idx])
 
-		_, respStatusCode := dbtools.SubmitGetRequest(baseURL, fullListEndpoint, paramMapList)
-		if respStatusCode == wantedCodes[idx] {
-			globalTestCounterPass(respStatusCode)
-		} else {
-			globalTestCounterFail(respStatusCode)
-		}
+		resp, _ := dbtools.MakeHttpRequestWrapper(baseURL, fullEndpoint, "GET", paramMapList, nil)
+		scoreGlobalTestsPassedandFailes(resp.StatusCode, wantedCodes[idx])
 
 	}
 }

@@ -7,8 +7,7 @@ import (
 )
 
 func testGetServiceByName() {
-	baseURL := "http://localhost:8969/"
-	listEndpoint := "/services/name/"
+	endpoint := "/services/name/"
 
 	goodService := dbtools.CreateExplicitService(dbtools.MakeRandomName(), dbtools.MakeRandomDescription(4), "v1,v2,v3")
 
@@ -26,14 +25,11 @@ func testGetServiceByName() {
 	for idx, testName := range testNameSlice {
 		fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
 		fmt.Printf("Running test %d: -  %s\n", idx, testName)
-		fullListEndpoint := fmt.Sprintf("%s%s", listEndpoint, serviceIdList[idx])
+		fullEndpoint := fmt.Sprintf("%s%s", endpoint, serviceIdList[idx])
 
-		_, respStatusCode := dbtools.SubmitGetRequest(baseURL, fullListEndpoint, paramMapList)
-		if respStatusCode == wantedCodes[idx] {
-			globalTestCounterPass(respStatusCode)
-		} else {
-			globalTestCounterFail(respStatusCode)
-		}
+		resp, _ := dbtools.MakeHttpRequestWrapper(baseURL, fullEndpoint, "GET", paramMapList, nil)
+
+		scoreGlobalTestsPassedandFailes(resp.StatusCode, wantedCodes[idx])
 
 	}
 }
