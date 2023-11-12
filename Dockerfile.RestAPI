@@ -31,7 +31,8 @@ FROM golang:1.21-bullseye AS release
 COPY --from=builder /build/buildout/apiServerMain /app/apiServerMain
 
 ## viper is ridiculously annoying - never using it again
-## TODO: change to method that reads env vars, not file
-COPY --from=builder /build/config_dev_secrets.env /config_dev_secrets.env
+## TODO: !!!change to method that reads env vars, not file
+COPY --from=builder /build/config_dev_secrets.env /app/config_dev_secrets.env
+WORKDIR /app
 
 CMD ["/app/apiServerMain"]

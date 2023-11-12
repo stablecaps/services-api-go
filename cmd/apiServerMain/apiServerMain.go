@@ -55,8 +55,10 @@ func main() {
 	}
 
 	log.Println("Starting up server..")
-	port := fmt.Sprintf(":%s",  config.APIPort)
-	server := api.NewAPIServer(port, dataBase)
+	host := config.APIHostName
+	port := config.APIPort
+	listenAddress := fmt.Sprintf("%s:%s",  host, port)
+	server := api.NewAPIServer(listenAddress, dataBase)
 	server.Run(port)
 
 }

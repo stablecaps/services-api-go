@@ -12,6 +12,7 @@ import (
 
 // DatabaseConfigurations exported
 type Configurations struct {
+	APIHostName    string `mapstructure:"API_HOSTNAME" env:"API_HOSTNAME" validate:"required"`
 	APIPort    string `mapstructure:"API_PORT" env:"API_PORT" validate:"required"`
 	DBName     string `mapstructure:"DB_NAME" env:"DB_NAME" validate:"required"`
 	DBUser     string `mapstructure:"DB_USER" env:"DB_USER" validate:"required"`
@@ -84,6 +85,7 @@ func Readconfig(configFileNameRoot, configFileNameExt string) (config *Configura
 
 	// Reading variables using the config struct
 	fmt.Println("Reading variables using the config struct..")
+	fmt.Println("APIHostName is\t\t", config.APIHostName)
 	fmt.Println("APIPort is\t\t", config.APIPort)
 	fmt.Println("DBName is\t\t", config.DBName)
 	fmt.Println("DBUser is\t\t", config.DBUser)

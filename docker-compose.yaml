@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3'
 services:
   postgres:
     image: postgres:16
@@ -11,18 +11,45 @@ services:
     ports:
       - 5432:5432
     networks:
-      - postgres-db-network
+      - dash-api-network
+  #--------------------------------
+  #
+  #--------------------------------
   pgadmin:
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4:7
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: 'admin@stablecaps.com'
       PGADMIN_DEFAULT_PASSWORD: 'admin'
     ports:
-      - 16543:80
+      - 6543:80
+    depends_on:
+      - postgres
     networks:
-      - postgres-db-network
-
+      - dash-api-network
+  #--------------------------------
+  #
+  #--------------------------------
+  # dashboardapi:
+  #   container_name: dashboardapi
+  #   image: dashboardapi:1.0.0
+  #   restart: always
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.RestAPI
+  #   env_file:
+  #     - ./config_dev_secrets.env
+  #   volumes:
+  #     - postgres-db-volume:/var/lib/postgresql/data:rw
+  #   ports:
+  #     - 969:8969
+  #   depends_on:
+  #     - postgres
+  #   networks:
+  #     - dash-api-network
+#--------------------------------
+#
+#--------------------------------
 volumes:
   postgres-db-volume:
     driver: local
@@ -30,6 +57,9 @@ volumes:
       type: none
       o: bind
       device: /tmp/data
+#--------------------------------
+#
+#--------------------------------
 networks:
-  postgres-db-network:
+  dash-api-network:
     driver: bridge
