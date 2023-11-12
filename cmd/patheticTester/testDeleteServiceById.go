@@ -11,7 +11,6 @@ import (
 func testDeleteserviceById() {
 	postedServiceData := dbtools.CreateExplicitService(dbtools.MakeRandomName(), dbtools.MakeRandomDescription(4), "v1,v2,v3")
 
-
 	fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
 	fmt.Printf("Now Deleting ServiceId %d via API delete endpoint\n", postedServiceData.ServiceId)
 

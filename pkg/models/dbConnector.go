@@ -20,8 +20,7 @@ type PostgresDb struct {
 	db *sql.DB
 }
 
-func NewPostgresDb(userName, dbName, password, sslmode string) (*PostgresDb, error) {
-	log.Printf("hello")
+func NewPostgresDb(userName, dbName, password, sslmode string, maxOpenConns, maxIdleConns int) (*PostgresDb, error) {
 	connStr := fmt.Sprintf("user=%s dbname=%s password=%s sslmode=%s", userName, dbName, password, sslmode)
 	log.Printf("connStr: %s", connStr)
 
@@ -33,8 +32,8 @@ func NewPostgresDb(userName, dbName, password, sslmode string) (*PostgresDb, err
 	}
 
 	// set db connection related settings
-	db.SetMaxOpenConns(20) // Sane default
-	db.SetMaxIdleConns(0)
+	db.SetMaxOpenConns(maxOpenConns) // Sane default
+	db.SetMaxIdleConns(maxIdleConns)
 	db.SetConnMaxLifetime(time.Nanosecond)
 
 	if err := db.Ping(); err != nil {
