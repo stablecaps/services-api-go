@@ -61,14 +61,17 @@ func (db *PostgresDb) GetAllServices(orderColName, orderDirection string, limit,
 	return serviceSlice, nil
 }
 
-func (db *PostgresDb) CreateNewService(service *Service) error {
+// use prepared statements
+// https://go.dev/doc/database/prepared-statements
+func (db *PostgresDb) CreateNewService(service *Service) (*Service, error) {
 	log.Println("Creating new service in DB")
 
 	query := `insert into services
 	(ServiceName, ServiceDescription, ServiceVersions, CreatedAt)
-	values ($1, $2, $3, $4)`
+	values ($1, $2, $3, $4)
+	RETURNING *`
 
-	row, err := db.db.Query(
+	rows, err := db.db.Query(
 		query,
 		service.ServiceName,
 		service.ServiceDescription,
@@ -77,13 +80,23 @@ func (db *PostgresDb) CreateNewService(service *Service) error {
 	)
 	if err != nil {
 		log.Printf("Error: %s", err)
-		return err
+		return nil, fmt.Errorf("error: creating service in db with ServiceName %s", service.ServiceName)
 	}
-	defer row.Close()
+	defer rows.Close()
 
-	fmt.Printf("%+v\n", row)
+	fmt.Printf("%+v\n", rows)
 	log.Printf("Created new service %s in DB", service.ServiceName)
-	return nil
+
+	var newService *Service
+	var cerr error
+	for rows.Next() {
+		newService, cerr = scanService(rows)
+	}
+	if cerr != nil {
+		log.Printf("Error: %s", err)
+		return nil, fmt.Errorf("error: getting newly created service in db with ServiceName %s", service.ServiceName)
+	}
+	return newService, err
 }
 
 func (db *PostgresDb) GetServiceByName(ServiceName string) (*Service, error) {

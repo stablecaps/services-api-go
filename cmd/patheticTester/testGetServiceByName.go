@@ -6,19 +6,20 @@ import (
 	"github.com/stablecaps/services-api-go/internal/dbtools"
 )
 
-func testGetServiceById() {
-	endpoint := "/services/id/"
+func testGetServiceByName() {
+	endpoint := "/services/name/"
 
+	goodService := dbtools.CreateExplicitService(dbtools.MakeRandomName(), dbtools.MakeRandomDescription(4), "v1,v2,v3")
 
 	testNameSlice := []string{
 		// Test serviceId 400s
-		"badServiceId", "outOfRangeServiceId",
+		"badServiceName", "nonExistentName",
 		// Test serviceId 200
 		"goodServiceId",
 	}
-	wantedCodes := []int{404, 404, 200}
+	wantedCodes := []int{500, 500, 200}
 	paramMapList := map[string]string{}
-	serviceIdList := []string{"fake", "-10", "5",}
+	serviceIdList := []string{"10", "NonExistantService", goodService.ServiceName}
 
 
 	for idx, testName := range testNameSlice {
@@ -27,6 +28,7 @@ func testGetServiceById() {
 		fullEndpoint := fmt.Sprintf("%s%s", endpoint, serviceIdList[idx])
 
 		resp, _ := dbtools.MakeHttpRequestWrapper(baseURL, fullEndpoint, "GET", paramMapList, nil)
+
 		scoreGlobalTestsPassedandFailes(resp.StatusCode, wantedCodes[idx])
 
 	}

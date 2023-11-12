@@ -20,8 +20,6 @@ services:
       PGADMIN_DEFAULT_PASSWORD: 'admin'
     ports:
       - 16543:80
-    # volumes:
-    #   - ./postgres_servers.json:/pgadmin4/servers.json
     networks:
       - postgres-db-network
 

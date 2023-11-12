@@ -1,10 +1,15 @@
 package main
 
-// TODO: make these functions more modular
+import (
+	"fmt"
+
+	"github.com/stablecaps/services-api-go/internal/dbtools"
+)
+
+
 func testListServices() {
 	// list services pathetic tests
-	baseURL := "http://localhost:8969/"
-	listEndpoint := "/services"
+	endpoint := "/services"
 
 
 	testNameSlice := []string{
@@ -102,6 +107,11 @@ func testListServices() {
 
 
 	for idx, testName := range testNameSlice {
-		submitGetRequest(testName, baseURL, listEndpoint, paramMapList[idx], idx, wantedCodes[idx])
+		fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
+		fmt.Printf("Running test %d: -  %s\n", idx, testName)
+
+		resp, _ := dbtools.MakeHttpRequestWrapper(baseURL, endpoint, "GET", paramMapList[idx], nil)
+
+		scoreGlobalTestsPassedandFailes(resp.StatusCode, wantedCodes[idx])
 	}
 }
