@@ -12,13 +12,13 @@ import (
 
 // DatabaseConfigurations exported
 type Configurations struct {
-	APIPort    string `mapstructure:"API_PORT" validate:"required"`
-	DBName     string `mapstructure:"DB_NAME" validate:"required"`
-	DBUser     string `mapstructure:"DB_USER" validate:"required"`
-	DBPassword string `mapstructure:"DB_PASSWORD" validate:"required"`
-	DBSSLmode  string `mapstructure:"DB_SSLMODE" validate:"required"`
-	DBMaxOpenConns  int `mapstructure:"DB_MAX_OPEN_CONNS" validate:"required"`
-	DBMaxIdleConns  int `mapstructure:"DB_MAX_IDLE_CONNS"`
+	APIPort    string `mapstructure:"API_PORT" env:"API_PORT" validate:"required"`
+	DBName     string `mapstructure:"DB_NAME" env:"DB_NAME" validate:"required"`
+	DBUser     string `mapstructure:"DB_USER" env:"DB_USER" validate:"required"`
+	DBPassword string `mapstructure:"DB_PASSWORD" env:"DB_PASSWORD" validate:"required"`
+	DBSSLmode  string `mapstructure:"DB_SSLMODE" env:"DB_SSLMODE" validate:"required"`
+	DBMaxOpenConns  int `mapstructure:"DB_MAX_OPEN_CONNS" env:"DB_MAX_OPEN_CONNS" validate:"required"`
+	DBMaxIdleConns  int `mapstructure:"DB_MAX_IDLE_CONNS" env:"DB_MAX_IDLE_CONNS"`
 }
 
 // function to get characters from strings using index
@@ -46,15 +46,15 @@ func printMaskedSecret(secret string, shownChars int) string {
 	return strings.Join(strSlice,"")
 }
 
-func Readconfig(configFileNameRoot, configFileNameExt string) (configurations *Configurations, err error) {
+func Readconfig(configFileNameRoot, configFileNameExt string) (config *Configurations, err error) {
 
 	configFileName := fmt.Sprintf("./%s.%s", configFileNameRoot, configFileNameExt)
 	fmt.Printf("configFileName: %s\n", configFileName)
 
-	// Set the path to look for the configurations file
+	// Set the path to look for the config file
 	viper.AddConfigPath(".")
 
-	// Set the file name of the configurations file
+	// Set the file name of the config file
 	viper.SetConfigName(configFileNameRoot)
 	viper.SetConfigType(configFileNameExt)
 	err = viper.ReadInConfig()
@@ -68,12 +68,13 @@ func Readconfig(configFileNameRoot, configFileNameExt string) (configurations *C
 	// Except viper is ridiculously annoying - never using it again
 	viper.AutomaticEnv()
 
-    if uerr := viper.UnmarshalExact(&configurations); uerr!=nil {
+    if uerr := viper.UnmarshalExact(&config); uerr!=nil {
         log.Fatalf("unable to unmarshall configfile %v", uerr)
 		os.Exit(42)
     }
+
     validate := validator.New(validator.WithRequiredStructEnabled())
-    if verr := validate.Struct(configurations); verr!=nil{
+    if verr := validate.Struct(config); verr!=nil{
         log.Fatalf("Missing required attributes %v\n", verr)
 		for _, xerr := range verr.(validator.ValidationErrors) {
 			fmt.Println(xerr.Field(), xerr.Tag())
@@ -83,16 +84,13 @@ func Readconfig(configFileNameRoot, configFileNameExt string) (configurations *C
 
 	// Reading variables using the config struct
 	fmt.Println("Reading variables using the config struct..")
-	fmt.Println("APIPort is\t\t", configurations.APIPort)
-	fmt.Println("DBName is\t\t", configurations.DBName)
-	fmt.Println("DBUser is\t\t", configurations.DBUser)
-	fmt.Println("DBPassword is\t\t", printMaskedSecret(configurations.DBPassword, 4))
-	fmt.Println("DBSSLmode is\t\t", configurations.DBSSLmode)
-	fmt.Println("DBMaxOpenConns is\t\t", configurations.DBMaxOpenConns)
-	fmt.Println("DBMaxIdleConns is\t\t", configurations.DBMaxIdleConns)
-
-
-
+	fmt.Println("APIPort is\t\t", config.APIPort)
+	fmt.Println("DBName is\t\t", config.DBName)
+	fmt.Println("DBUser is\t\t", config.DBUser)
+	fmt.Println("DBPassword is\t\t", printMaskedSecret(config.DBPassword, 4))
+	fmt.Println("DBSSLmode is\t\t", config.DBSSLmode)
+	fmt.Println("DBMaxOpenConns is\t\t", config.DBMaxOpenConns)
+	fmt.Println("DBMaxIdleConns is\t\t", config.DBMaxIdleConns)
 	return
 }
 
