@@ -29,7 +29,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ./data
+      device: /tmp/data
 networks:
   postgres-db-network:
     driver: bridge

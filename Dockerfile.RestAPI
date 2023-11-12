@@ -1,0 +1,37 @@
+FROM golang:1.21-bullseye as builder
+
+# RUN go install github.com/beego/bee/v2@latest
+
+ENV GO111MODULE=on \
+    GOFLAGS=-mod=vendor \
+    CGO_ENABLED=0 \
+    GOOS=linux
+
+# Populate the module cache based on the go.{mod,sum} files.
+WORKDIR /build
+COPY . .
+
+RUN go mod download && \
+        go mod vendor
+
+
+
+# Build the Go app
+RUN go build -ldflags="-s -w" -mod vendor -o ./buildout/apiServerMain ./cmd/apiServerMain/apiServerMain.go
+
+
+EXPOSE 8969
+
+
+
+####################################################################
+# FROM gcr.io/distroless/base-debian11 AS release
+FROM golang:1.21-bullseye AS release
+
+COPY --from=builder /build/buildout/apiServerMain /app/apiServerMain
+
+## viper is ridiculously annoying - never using it again
+## TODO: change to method that reads env vars, not file
+COPY --from=builder /build/config_dev_secrets.env /config_dev_secrets.env
+
+CMD ["/app/apiServerMain"]

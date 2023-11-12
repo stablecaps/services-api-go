@@ -11,7 +11,7 @@ import (
 )
 
 func testGetHealthendpoint() {
-	healthEndpoint := "/health"
+	endpoint := "/health"
 
 
 	testNameSlice := []string{
@@ -26,7 +26,7 @@ func testGetHealthendpoint() {
 		fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
 		fmt.Printf("Running test %d: -  %s\n", idx, testName)
 
-		resp, _ := dbtools.MakeHttpRequestWrapper(baseURL, healthEndpoint, "GET", paramMapList, nil)
+		resp, _ := dbtools.MakeHttpRequestWrapper(baseURL, endpoint, "GET", paramMapList, nil)
 		scoreGlobalTestsPassedandFailes(resp.StatusCode, wantedCodes[idx])
 	}
 }

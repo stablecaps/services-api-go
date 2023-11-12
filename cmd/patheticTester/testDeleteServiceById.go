@@ -8,7 +8,7 @@ import (
 
 
 
-func testDeleteserviceById() {
+func testDeleteServiceById() {
 	postedServiceData := dbtools.CreateExplicitService(dbtools.MakeRandomName(), dbtools.MakeRandomDescription(4), "v1,v2,v3")
 
 	fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
@@ -21,7 +21,7 @@ func testDeleteserviceById() {
 scoreGlobalTestsPassedandFailes(resp.StatusCode, 200)
 }
 
-func testDeleteserviceByIdError() {
+func testDeleteServiceByIdError() {
 	endpoint := "/services/id/"
 
 

@@ -15,7 +15,7 @@ func main() {
 
 	log.Printf("Creating new service by posting data to: %s%s", baseURL, endpoint)
 
-	numServices := 500
+	numServices := 50
 	paramMapList := map[string]string{}
 
 

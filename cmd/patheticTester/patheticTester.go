@@ -46,11 +46,15 @@ func main() {
 	printTestSeperator("testGetServiceVersionsById")
 	testGetServiceVersionsById()
 
-	printTestSeperator("testDeleteserviceById")
-	testDeleteserviceById()
+	printTestSeperator("testDeleteServiceById")
+	testDeleteServiceById()
 
-	printTestSeperator("testDeleteserviceByIdError")
-	testDeleteserviceByIdError()
+	printTestSeperator("testDeleteServiceByIdError")
+	testDeleteServiceByIdError()
+
+	// TODO: test new service endpoint. kind of tested already with populate db
+	// printTestSeperator("testCreateNewService")
+	// testCreateNewService()
 
 	println("\n\n")
 	color.Red("Tests failed: %s", strconv.Itoa(testsFailed))
