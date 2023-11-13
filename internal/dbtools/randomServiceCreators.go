@@ -13,7 +13,7 @@ import (
 func MakeRandomName() string {
 	babbler := babble.NewBabbler()
 	babbler.Count = 1
-	cleanedName := strings.Replace(babbler.Babble(), "'", -1)
+	cleanedName := strings.Replace(babbler.Babble(), "'", "", 10)
 	return cleanedName
 }
 

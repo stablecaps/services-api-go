@@ -29,7 +29,7 @@ func main() {
 	log.Println("Reading config..")
 
 
-	config, err := config.Readconfig("config_dev_secrets", "env")
+	config, err := config.Readconfig("config_app_secrets", "env")
     if err != nil {
         fmt.Printf("Error: cannot read config: %s", err)
 		os.Exit(42)
