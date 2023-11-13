@@ -26,10 +26,33 @@ This is a timed interview test to create an api which retrieves a list of servic
 8. Test & populate DB: `make runpopdb`
 9. Test List services & get service by id: `make pattest`
 
+## Available endpoints:
+
+Note: All endpoints check that  `Content-Type` is `application/json`
+
+1. List services: `/services?limit=4&offset=0`. Can also order by column name using `/services?limit=4&offset=0&orderColName=serviceDescription&orderDir=desc`
+
+2. Create a new service `/services/new`. Request body example:
+```
+{
+    "ServiceName": "My New Service",
+    "ServiceDescription": "Service to list coffee granules left in the jar"
+}
+```
+
+3. Get service by integer serviceId `/services/versions/{serviceId:[0-9]+}`
+
+4. Delete service by integer serviceId `/services/versions/{serviceId:[0-9]+}`
+
+5. Get service by serviceName `/services/name/{ServiceName:[a-zA-Z0-9]+}`
+
+6. Get service versions by integer serviceId `/services/versions/{serviceId:[0-9]+}`
+
+7. Check App health `/health`
 
 
 ## Notes & things left to do
-1. As time was short, I didn't want to waste any by potentially falling down a rabbit hole with the golang testing framework. Thus,  I created a quick & dirty method to test API functionality instead. I will have a look at moving these to `go test`.
+1. As time was short, I didn't want to waste any by potentially falling down a rabbit hole with the golang testing framework. Thus, I created a quick & dirty method to test API functionality instead. I will have a look at moving these to `go test`.
 
 2. I've only tested HTTP response codes for the various endpoints so far. Still need to examine and test the response content.
 
@@ -37,8 +60,8 @@ This is a timed interview test to create an api which retrieves a list of servic
 
 4. Spent some time trying to create auto documentation via swaggo, but it needs a bit more TLC to get it over the line.
 
-5. Submitted a fully working docker-compose file. Just handles the DB at the mo
+5. The docker-compose file only handles the DB at the moment. I would want to expand this so that it also handles a dockerised verion of the app andf integrates with Kong API gateway.
 
 6. Written terraform code to deploy it to a production environment.
 
-7. I realise there are probably much better go programmers out there than me so my chances in this are slim. Thus, I mainly used this as an opportunity to learn about golang!
+7. Improved config reading so that the app gets secrets via environment variables.
