@@ -29,12 +29,12 @@ This is a timed interview test to create an api which retrieves a list of servic
 
 
 
-## Things to do
+## Notes & things left to do
+1. As time was short, I didn't want to waste any by potentially falling down a rabbit hole with the golang testing framework. Thus,  I created a quick & dirty method to test API functionality instead. I will have a look at moving these to `go test`.
 
+2. I've only tested HTTP response codes for the various endpoints so far. Still need to examine and test the response content.
 
-2. Have not finished all the testing modules. I didn't have enough time to get to grips with the golang testing framework, so instead created a quick & dirty method to test API functionality.
-
-3. I didn't spend too much time worrying about performance, rate limiting, etc as I think this can be handled by other infrastructure components like an API gateway.
+3. I didn't spend too much time worrying about performance, rate limiting, etc as I think this can be handled by other infrastructure components like the API gateway. Set some sane defaults with respect to database connections though. I understand there is some performance benefit in allowing some idle connections. Ideally, this would be empirically tested under load.
 
 4. Spent some time trying to create auto documentation via swaggo, but it needs a bit more TLC to get it over the line.
 
