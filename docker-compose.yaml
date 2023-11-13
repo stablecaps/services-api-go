@@ -13,7 +13,7 @@ services:
     networks:
       - postgres-db-network
   pgadmin:
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4:7
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: 'admin@stablecaps.com'

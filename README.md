@@ -1,18 +1,16 @@
 # Dashboard Services Go API
 
 ## Overview
-This is a timed interview test to create an api which retrieves a list of services written in Go. See docs directory for full brief.
+This is a timed interview test to create an api which retrieves a list of services written in Go. See docs directory for full brief. I have not had any golang coding experience, so this was a crash course in learning Golang over ~12 days and has been quite fun!
 
 
 ## Design Process.
 
-I have not had any golang coding experience prior to last thursday, so this was a crash course in learning Go and has been quite fun!
-
 1. I started writing an initial swagger spec using swaggerhub. this can be found `swagger/initial_ServicesDashboardAPI-1.0.0-unresolved.yaml`
 
-2. I then looked at several crash courses in creating APIs in golang to get to grips with how to code the app.
+2. I then looked at several crash courses on creating APIs in golang to get to grips with how to code the app.
 
-3. Wrote the API and tried to ensure that responses did not contain information that would reveal the inner workings of the backend too much.
+3. Wrote the API and tried to ensure that responses did not contain information that would reveal the inner workings of the backend.
 
 4. Made the api fail incorrect requests with useful messages fed back to user vs falling back to a default. This was to promote correct api usage.
 
@@ -30,8 +28,8 @@ I have not had any golang coding experience prior to last thursday, so this was 
 
 
 
-## Caveats
-1. I have not had as much time as I would have liked to deliver a polished product and have not:
+## Things to do
+
 
 2. Have not finished all the testing modules. I didn't have enough time to get to grips with the golang testing framework, so instead created a quick & dirty method to test API functionality.
 

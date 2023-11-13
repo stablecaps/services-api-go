@@ -13,10 +13,10 @@ import (
 // DatabaseConfigurations exported
 type Configurations struct {
 	APIPort    string `mapstructure:"API_PORT" validate:"required"`
-	DBName     string `mapstructure:"DB_NAME_SCAPS" validate:"required"`
-	DBUser     string `mapstructure:"DB_USER_SCAPS" validate:"required"`
-	DBPassword string `mapstructure:"DB_PASSWORD_SCAPS" validate:"required"`
-	DBSSLmode  string `mapstructure:"DB_SSL_MODE_SCAPS" validate:"required"`
+	DBName     string `mapstructure:"DB_NAME" validate:"required"`
+	DBUser     string `mapstructure:"DB_USER" validate:"required"`
+	DBPassword string `mapstructure:"DB_PASSWORD" validate:"required"`
+	DBSSLmode  string `mapstructure:"DB_SSLMODE" validate:"required"`
 	DBMaxOpenConns  int `mapstructure:"DB_MAX_OPEN_CONNS" validate:"required"`
 	DBMaxIdleConns  int `mapstructure:"DB_MAX_IDLE_CONNS"`
 }
