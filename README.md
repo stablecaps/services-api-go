@@ -18,13 +18,14 @@ This is a timed interview test to create an api which retrieves a list of servic
 ## Usage instructions
 1. Clone this repo using `git clone github.com:stablecaps/services-api-go.git`
 2. There is a Makefile which can be utilised `./Makefile`
-3. Start the database by first running `docker-compose up`. (Only the db is handled at the moment)
-4. Create secrets file: `cp config_dev_secrets.env.template config_dev_secrets.env` and edit values in it so that API can access the DB.
-5. Build the project: `make build`
-6. Start API server: `make run`
-7. Test & populate DB: `make runpopdb`
-8. Test pagination (offset & limit): `make runpage`
-9. Test List services & get service by id: `make pattest`
+3. Make a mount point for postgres db `mkdir -p /tmp/data`
+4. Start the database by first running `docker-compose up`. (Only the db is handled at the moment)
+5. Create secrets file: `cp config_dev_secrets.env.template config_dev_secrets.env` and edit values in it so that API can access the DB.
+6. Build the project: `make build`
+7. Start API server: `make run`
+8. Test & populate DB: `make runpopdb`
+9. Test pagination (offset & limit): `make runpage`
+10. Test List services & get service by id: `make pattest`
 
 
 
