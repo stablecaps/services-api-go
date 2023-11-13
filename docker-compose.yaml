@@ -3,9 +3,6 @@ services:
   postgres:
     image: postgres:16
     restart: always
-    # environment:
-    #   - POSTGRES_USER=postgres
-    #   - POSTGRES_PASSWORD=mysecretpassword
     env_file:
       - config_dev_secrets.env
     volumes:
@@ -17,9 +14,6 @@ services:
   pgadmin:
     image: dpage/pgadmin4:7
     restart: always
-    # environment:
-    #   PGADMIN_DEFAULT_EMAIL: 'admin@stablecaps.com'
-    #   PGADMIN_DEFAULT_PASSWORD: 'admin'
     env_file:
       - config_dev_secrets.env
     ports:
