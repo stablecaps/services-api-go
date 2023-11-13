@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"strings"
 
 	"github.com/tjarratt/babble"
 )
@@ -12,7 +13,8 @@ import (
 func MakeRandomName() string {
 	babbler := babble.NewBabbler()
 	babbler.Count = 1
-	return babbler.Babble()
+	cleanedName := strings.Replace(babbler.Babble(), "'", -1)
+	return cleanedName
 }
 
 func MakeRandomDescription(wordCount int) string {

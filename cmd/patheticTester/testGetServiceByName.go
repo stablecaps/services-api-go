@@ -15,17 +15,17 @@ func testGetServiceByName() {
 		// Test serviceId 400s
 		"badServiceName", "nonExistentName",
 		// Test serviceId 200
-		"goodServiceId",
+		"goodServiceName",
 	}
 	wantedCodes := []int{500, 500, 200}
 	paramMapList := map[string]string{}
-	serviceIdList := []string{"10", "NonExistantService", goodService.ServiceName}
+	serviceNameList := []string{"10", "NonExistantService", goodService.ServiceName}
 
 
 	for idx, testName := range testNameSlice {
 		fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
 		fmt.Printf("Running test %d: -  %s\n", idx, testName)
-		fullEndpoint := fmt.Sprintf("%s%s", endpoint, serviceIdList[idx])
+		fullEndpoint := fmt.Sprintf("%s%s", endpoint, serviceNameList[idx])
 
 		resp, _ := dbtools.MakeHttpRequestWrapper(baseURL, fullEndpoint, "GET", paramMapList, nil)
 

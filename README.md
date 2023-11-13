@@ -20,12 +20,11 @@ This is a timed interview test to create an api which retrieves a list of servic
 2. There is a Makefile which can be utilised `./Makefile`
 3. Make a mount point for postgres db `mkdir -p /tmp/data`
 4. Start the database by first running `docker-compose up`. (Only the db is handled at the moment)
-5. Create secrets file: `cp config_dev_secrets.env.template config_dev_secrets.env` and edit values in it so that API can access the DB.
+5. Create secrets file: `cp config_dev_secrets.env.template config_dev_secrets.env` and edit values in it so that API can access the DB. Also rename the DB secrets file `cp config_postgres_secrets.env.template config_postgres_secrets.env`. Note `DB_PASSWORD` must equal `POSTGRES_PASSWORD`
 6. Build the project: `make build`
 7. Start API server: `make run`
 8. Test & populate DB: `make runpopdb`
-9. Test pagination (offset & limit): `make runpage`
-10. Test List services & get service by id: `make pattest`
+9. Test List services & get service by id: `make pattest`
 
 
 
