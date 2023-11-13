@@ -65,3 +65,5 @@ Note: All endpoints check that  `Content-Type` is `application/json`
 6. Written terraform code to deploy it to a production environment.
 
 7. Improved config reading so that the app gets secrets via environment variables.
+
+8. Support different API versions in the Dashboard-API itself.
