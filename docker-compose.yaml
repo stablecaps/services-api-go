@@ -4,7 +4,7 @@ services:
     image: postgres:16
     restart: always
     env_file:
-      - config_dev_secrets.env
+      - config_postgres_secrets.env
     volumes:
       - postgres-db-volume:/var/lib/postgresql/data
     ports:
@@ -15,7 +15,7 @@ services:
     image: dpage/pgadmin4:7
     restart: always
     env_file:
-      - config_dev_secrets.env
+      - config_postgres_secrets.env
     ports:
       - 16543:80
     networks:
