@@ -29,12 +29,11 @@ func readHttpBody(resp *http.Response, httpVerb string) []byte {
 
 func MakeHttpRequestWrapper(baseURL, endpoint, httpVerb string, paramMap map[string]string, reqBody []byte) (*http.Response, []byte) {
 	allowedHttpVerbs := []string{"GET", "POST", "DELETE"}
-	if ! slices.Contains(allowedHttpVerbs, httpVerb) {
+	if !slices.Contains(allowedHttpVerbs, httpVerb) {
 		log.Printf("HTTP verb %s not allowed!", httpVerb)
 		log.Printf("Must be one of %s", strings.Join(allowedHttpVerbs[:], ", "))
 		os.Exit(42)
 	}
-
 
 	myUrl, _ := url.ParseRequestURI(baseURL)
 	myUrl.Path = endpoint
@@ -42,12 +41,12 @@ func MakeHttpRequestWrapper(baseURL, endpoint, httpVerb string, paramMap map[str
 	// add params
 	if len(paramMap) > 0 {
 		params := url.Values{}
-			for key, val := range paramMap {
-				fmt.Println(key, val)
-				params.Add(key, val)
-			}
-			myUrl.RawQuery = params.Encode()
+		for key, val := range paramMap {
+			fmt.Println(key, val)
+			params.Add(key, val)
 		}
+		myUrl.RawQuery = params.Encode()
+	}
 	myUrlStr := fmt.Sprintf("%v", myUrl)
 
 	var req *http.Request
@@ -77,7 +76,6 @@ func MakeHttpRequestWrapper(baseURL, endpoint, httpVerb string, paramMap map[str
 }
 
 func MakeExplicitServiceJson(name, description, versions string) []byte {
-
 	log.Printf("name is %s", name)
 	log.Printf("description is %s", description)
 
@@ -85,7 +83,7 @@ func MakeExplicitServiceJson(name, description, versions string) []byte {
 		"serviceName": "%s",
 		"serviceDescription": "%s",
 		"serviceVersions": "%s"
-	}`, name, description, versions) )
+	}`, name, description, versions))
 
 	return body
 }
@@ -141,7 +139,7 @@ func CreateExplicitService(serviceName, serviceDescriptions, serviceVersions str
 	fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
 	fmt.Println("Posting sample service to test API delete endpoint")
 
-	//baseURL = "http://localhost:8969/"
+	// baseURL = "http://localhost:8969/"
 	body := MakeExplicitServiceJson(serviceName, serviceDescriptions, serviceVersions)
 	createNewServiceUrl := "http://localhost:8969/services/new"
 
@@ -151,8 +149,6 @@ func CreateExplicitService(serviceName, serviceDescriptions, serviceVersions str
 }
 
 func PrettyPrint(i interface{}) string {
-    s, _ := json.MarshalIndent(i, "", "\t")
-    return string(s)
+	s, _ := json.MarshalIndent(i, "", "\t")
+	return string(s)
 }
-
-

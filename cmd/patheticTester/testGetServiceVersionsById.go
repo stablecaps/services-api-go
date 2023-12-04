@@ -23,7 +23,6 @@ func testGetServiceVersionsById() {
 	paramMapList := map[string]string{}
 	serviceIdList := []string{"9999999999999", strconv.Itoa(postedServiceData.ServiceId)}
 
-
 	for idx, testName := range testNameSlice {
 		fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
 		fmt.Printf("Running test %d: -  %s\n", idx, testName)

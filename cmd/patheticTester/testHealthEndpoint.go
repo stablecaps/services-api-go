@@ -13,14 +13,12 @@ import (
 func testGetHealthendpoint() {
 	healthEndpoint := "/health"
 
-
 	testNameSlice := []string{
 		// Test health 200
 		"goodCall",
 	}
-	wantedCodes := []int{200,}
+	wantedCodes := []int{200}
 	paramMapList := map[string]string{}
-
 
 	for idx, testName := range testNameSlice {
 		fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
@@ -32,7 +30,6 @@ func testGetHealthendpoint() {
 }
 
 func TestHealthCheck(t *testing.T) {
-
 	response, err := http.Get("http://localhost:8969/health")
 	if err != nil {
 		t.Errorf("expected no errors, but got %v", err)

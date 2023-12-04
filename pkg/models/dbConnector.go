@@ -13,7 +13,7 @@ type Dbase interface {
 	GetServiceById(int) (*Service, error)
 	DeleteServiceById(int) (int64, error)
 	GetServiceVersionsById(int) (string, error)
-	CreateNewService(*Service)  (*Service, error)
+	CreateNewService(*Service) (*Service, error)
 }
 
 type PostgresDb struct {
@@ -26,7 +26,6 @@ func NewPostgresDb(userName, dbName, password, sslmode string, maxOpenConns, max
 	connStr := fmt.Sprintf("user=%s dbname=%s password=%s sslmode=%s", userName, dbName, password, sslmode)
 	log.Printf("connStr: %s", connStr)
 
-
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal(err)
@@ -37,7 +36,7 @@ func NewPostgresDb(userName, dbName, password, sslmode string, maxOpenConns, max
 	// https://www.alexedwards.net/blog/configuring-sqldb
 	db.SetMaxOpenConns(maxOpenConns) // Sane default
 	db.SetMaxIdleConns(maxIdleConns) // try 2 for some performance gains
-	db.SetConnMaxLifetime(5*time.Minute)
+	db.SetConnMaxLifetime(5 * time.Minute)
 
 	if err := db.Ping(); err != nil {
 		log.Printf("Error: %s", err)
@@ -48,7 +47,6 @@ func NewPostgresDb(userName, dbName, password, sslmode string, maxOpenConns, max
 	return &PostgresDb{
 		db: db,
 	}, nil
-
 }
 
 func (db *PostgresDb) Init() error {

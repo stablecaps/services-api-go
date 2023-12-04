@@ -36,12 +36,11 @@ func (server *APIServer) Run(port string) {
 	// docs
 	router.PathPrefix("/swagger/").Handler(httpSwagger.Handler(
 		// httpSwagger.URL(fmt.Sprintf("http://localhost:%s/swagger/swagger.json", port)), // buggy
-		httpSwagger.URL("http://localhost:8969/swagger/swagger.json"), //The url pointing to API definition
+		httpSwagger.URL("http://localhost:8969/swagger/swagger.json"), // The url pointing to API definition
 		httpSwagger.DeepLinking(true),
 		httpSwagger.DocExpansion("none"),
 		httpSwagger.DomID("swagger-ui"),
 	)).Methods(http.MethodGet)
-
 
 	log.Println("API server running on port: ", server.listenAddr)
 	log.Fatal(http.ListenAndServe(server.listenAddr, router))

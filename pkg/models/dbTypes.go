@@ -23,27 +23,25 @@ func makeRandomVersionsSlice(max int) string {
 
 // TODO: validate for empty strings
 type CreateServiceRequest struct {
-	ServiceName string `json:"serviceName" validate:"required"`
+	ServiceName        string `json:"serviceName" validate:"required"`
 	ServiceDescription string `json:"serviceDescription" validate:"required"`
-	ServiceVersions string `json:"serviceVersions"`
+	ServiceVersions    string `json:"serviceVersions"`
 }
 
 // Response
 type Service struct {
-	ServiceId int `json:"serviceId"`
-	ServiceName string `json:"serviceName"`
-	ServiceDescription string `json:"serviceDescription"`
-  	ServiceVersions string `json:"serviceVersions"`
-	CreatedAt time.Time `json:"createdAt"`
+	ServiceId          int       `json:"serviceId"`
+	ServiceName        string    `json:"serviceName"`
+	ServiceDescription string    `json:"serviceDescription"`
+	ServiceVersions    string    `json:"serviceVersions"`
+	CreatedAt          time.Time `json:"createdAt"`
 }
-
 
 func NewService(ServiceName, ServiceDescription string) *Service {
 	return &Service{
-		ServiceName: ServiceName,
+		ServiceName:        ServiceName,
 		ServiceDescription: ServiceDescription,
-		ServiceVersions: makeRandomVersionsSlice(5),
-		CreatedAt: time.Now().UTC(),
+		ServiceVersions:    makeRandomVersionsSlice(5),
+		CreatedAt:          time.Now().UTC(),
 	}
 }
-

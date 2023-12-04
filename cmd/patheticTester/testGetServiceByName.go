@@ -21,7 +21,6 @@ func testGetServiceByName() {
 	paramMapList := map[string]string{}
 	serviceNameList := []string{"10", "NonExistantService", goodService.ServiceName}
 
-
 	for idx, testName := range testNameSlice {
 		fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
 		fmt.Printf("Running test %d: -  %s\n", idx, testName)
