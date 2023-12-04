@@ -6,11 +6,9 @@ import (
 	"github.com/stablecaps/services-api-go/internal/dbtools"
 )
 
-
 func testListServices() {
 	// list services pathetic tests
 	endpoint := "/services"
-
 
 	testNameSlice := []string{
 		// Test 400s
@@ -24,87 +22,86 @@ func testListServices() {
 	paramMapList := []map[string]string{
 		// Test 400s
 		{
-			"limit": "fake",
-			"offset": "0",
+			"limit":        "fake",
+			"offset":       "0",
 			"orderColName": "serviceName",
-			"orderDir": "asc",
+			"orderDir":     "asc",
 		},
 		{
-			"limit": "-10",
-			"offset": "0",
+			"limit":        "-10",
+			"offset":       "0",
 			"orderColName": "serviceName",
-			"orderDir": "asc",
+			"orderDir":     "asc",
 		},
 		{
-			"limit": "4",
-			"offset": "fake",
+			"limit":        "4",
+			"offset":       "fake",
 			"orderColName": "serviceName",
-			"orderDir": "asc",
+			"orderDir":     "asc",
 		},
 		{
-			"limit": "4",
-			"offset": "-10",
+			"limit":        "4",
+			"offset":       "-10",
 			"orderColName": "serviceName",
-			"orderDir": "asc",
+			"orderDir":     "asc",
 		},
 		{
-			"limit": "4",
-			"offset": "0",
+			"limit":        "4",
+			"offset":       "0",
 			"orderColName": "fake",
 		},
 		{
-			"limit": "4",
-			"offset": "0",
+			"limit":        "4",
+			"offset":       "0",
 			"orderColName": "serviceName",
-			"orderDir": "fake",
+			"orderDir":     "fake",
 		},
 		// Test orderColName 200
 		{
-			"limit": "4",
-			"offset": "0",
+			"limit":        "4",
+			"offset":       "0",
 			"orderColName": "serviceId",
-			"orderDir": "asc",
+			"orderDir":     "asc",
 		},
 		{
-			"limit": "4",
-			"offset": "0",
+			"limit":        "4",
+			"offset":       "0",
 			"orderColName": "serviceName",
-			"orderDir": "asc",
+			"orderDir":     "asc",
 		},
 		{
-			"limit": "4",
-			"offset": "0",
+			"limit":        "4",
+			"offset":       "0",
 			"orderColName": "serviceDescription",
-			"orderDir": "asc",
+			"orderDir":     "asc",
 		},
 		{
-			"limit": "4",
-			"offset": "0",
+			"limit":        "4",
+			"offset":       "0",
 			"orderColName": "serviceVersions",
-			"orderDir": "asc",
+			"orderDir":     "asc",
 		},
 		{
-			"limit": "4",
-			"offset": "0",
+			"limit":        "4",
+			"offset":       "0",
 			"orderColName": "createdAt",
-			"orderDir": "asc",
+			"orderDir":     "asc",
 		},
 		// Test orderDir 200
 		{
-			"limit": "4",
-			"offset": "0",
+			"limit":        "4",
+			"offset":       "0",
 			"orderColName": "serviceName",
-			"orderDir": "asc",
+			"orderDir":     "asc",
 		},
 
 		{
-			"limit": "4",
-			"offset": "0",
+			"limit":        "4",
+			"offset":       "0",
 			"orderColName": "serviceName",
-			"orderDir": "asc",
+			"orderDir":     "asc",
 		},
 	}
-
 
 	for idx, testName := range testNameSlice {
 		fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")

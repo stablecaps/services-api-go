@@ -8,9 +8,8 @@ import (
 )
 
 type test_struct struct {
-    Test string
+	Test string
 }
-
 
 func main() {
 	baseURL := "http://localhost:8969/"
@@ -33,8 +32,7 @@ func main() {
 		urlStr := fmt.Sprintf("%v", u)
 
 		log.Printf("Listing services by using limit & offset to %s", urlStr)
-		page  = page + 1
+		page = page + 1
 
 	}
-
 }

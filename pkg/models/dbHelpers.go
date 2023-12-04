@@ -22,10 +22,9 @@ func (db *PostgresDb) CreateTable() error {
 	return err
 }
 
-////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////
 func (db *PostgresDb) GetAllServices(orderColName, orderDirection string, limit, offset int) ([]*Service, error) {
-
 	log.Println("Looking up services in DB")
 
 	// check to see if this is good against sql injection
@@ -49,7 +48,7 @@ func (db *PostgresDb) GetAllServices(orderColName, orderDirection string, limit,
 	println()
 	for rows.Next() {
 		service, err := scanService(rows)
-		if err !=nil {
+		if err != nil {
 			log.Printf("Error: %s", err)
 			return nil, err
 		}
@@ -185,8 +184,8 @@ func (db *PostgresDb) GetServiceVersionsById(ServiceId int) (string, error) {
 	return serviceVersions, nil
 }
 
-////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////
 func scanService(rows *sql.Rows) (*Service, error) {
 	service := new(Service)
 	err := rows.Scan(

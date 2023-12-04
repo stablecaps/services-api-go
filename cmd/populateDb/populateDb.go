@@ -9,7 +9,6 @@ import (
 // Declaring Global variables
 var baseURL string = "http://localhost:8969/"
 
-
 func main() {
 	endpoint := "/services/new"
 
@@ -18,7 +17,6 @@ func main() {
 	numServices := 500
 	paramMapList := map[string]string{}
 
-
 	for idx := 0; idx <= numServices; idx++ {
 		log.Printf("Creating service no %d", idx)
 
@@ -26,6 +24,4 @@ func main() {
 		dbtools.MakeHttpRequestWrapper(baseURL, endpoint, "POST", paramMapList, body)
 
 	}
-
 }
-

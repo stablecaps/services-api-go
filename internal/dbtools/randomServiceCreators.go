@@ -9,7 +9,6 @@ import (
 	"github.com/tjarratt/babble"
 )
 
-
 func MakeRandomName() string {
 	babbler := babble.NewBabbler()
 	babbler.Count = 1
@@ -36,7 +35,7 @@ func MakeRandomService() []byte {
 	body := []byte(fmt.Sprintf(`{
 		"serviceName": "%s",
 		"serviceDescription": "%s"
-	}`, randomName, radomDesc) )
+	}`, randomName, radomDesc))
 
 	return body
 }

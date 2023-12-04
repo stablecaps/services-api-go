@@ -12,13 +12,13 @@ import (
 
 // DatabaseConfigurations exported
 type Configurations struct {
-	APIPort    string `mapstructure:"API_PORT" validate:"required"`
-	DBName     string `mapstructure:"DB_NAME" validate:"required"`
-	DBUser     string `mapstructure:"DB_USER" validate:"required"`
-	DBPassword string `mapstructure:"DB_PASSWORD" validate:"required"`
-	DBSSLmode  string `mapstructure:"DB_SSLMODE" validate:"required"`
-	DBMaxOpenConns  int `mapstructure:"DB_MAX_OPEN_CONNS" validate:"required"`
-	DBMaxIdleConns  int `mapstructure:"DB_MAX_IDLE_CONNS"`
+	APIPort        string `mapstructure:"API_PORT" validate:"required"`
+	DBName         string `mapstructure:"DB_NAME" validate:"required"`
+	DBUser         string `mapstructure:"DB_USER" validate:"required"`
+	DBPassword     string `mapstructure:"DB_PASSWORD" validate:"required"`
+	DBSSLmode      string `mapstructure:"DB_SSLMODE" validate:"required"`
+	DBMaxOpenConns int    `mapstructure:"DB_MAX_OPEN_CONNS" validate:"required"`
+	DBMaxIdleConns int    `mapstructure:"DB_MAX_IDLE_CONNS"`
 }
 
 // function to get characters from strings using index
@@ -43,11 +43,10 @@ func printMaskedSecret(secret string, shownChars int) string {
 		}
 	}
 
-	return strings.Join(strSlice,"")
+	return strings.Join(strSlice, "")
 }
 
 func Readconfig(configFileNameRoot, configFileNameExt string) (configurations *Configurations, err error) {
-
 	// Set the path to look for the configurations file
 	viper.AddConfigPath(".")
 
@@ -59,23 +58,23 @@ func Readconfig(configFileNameRoot, configFileNameExt string) (configurations *C
 	viper.AutomaticEnv()
 
 	err = viper.ReadInConfig()
-    if err != nil {
-        log.Fatalf("unable to read configfile %v", err)
+	if err != nil {
+		log.Fatalf("unable to read configfile %v", err)
 		os.Exit(42)
-    }
+	}
 
-    if uerr := viper.UnmarshalExact(&configurations); uerr!=nil {
-        log.Fatalf("unable to unmarshall configfile %v", uerr)
+	if uerr := viper.UnmarshalExact(&configurations); uerr != nil {
+		log.Fatalf("unable to unmarshall configfile %v", uerr)
 		os.Exit(42)
-    }
-    validate := validator.New(validator.WithRequiredStructEnabled())
-    if verr := validate.Struct(configurations); verr!=nil{
-        log.Fatalf("Missing required attributes %v\n", verr)
+	}
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	if verr := validate.Struct(configurations); verr != nil {
+		log.Fatalf("Missing required attributes %v\n", verr)
 		for _, xerr := range verr.(validator.ValidationErrors) {
 			fmt.Println(xerr.Field(), xerr.Tag())
 		}
 		os.Exit(42)
-    }
+	}
 
 	// Reading variables using the config struct
 	fmt.Println("Reading variables using the config struct..")
@@ -86,8 +85,6 @@ func Readconfig(configFileNameRoot, configFileNameExt string) (configurations *C
 	fmt.Println("DBSSLmode is\t\t", configurations.DBSSLmode)
 	fmt.Println("DBMaxOpenConns is\t\t", configurations.DBMaxOpenConns)
 	fmt.Println("DBMaxIdleConns is\t\t", configurations.DBMaxIdleConns)
-
-
 
 	return
 }

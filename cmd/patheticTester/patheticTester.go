@@ -8,17 +8,19 @@ import (
 )
 
 // Declaring Global variables
-var baseURL string = "http://localhost:8969/"
-var testsPassed int = 0
-var testsFailed int = 0
+var (
+	baseURL     string = "http://localhost:8969/"
+	testsPassed int    = 0
+	testsFailed int    = 0
+)
 
 func scoreGlobalTestsPassedandFailes(testCode, wantedCode int) {
 	if testCode == wantedCode {
 		color.Green("Test passed: %d", testCode)
-		testsPassed ++
+		testsPassed++
 	} else {
 		color.Red("Error!! Wanted %d, but got unexpected status: %d", wantedCode, testCode)
-		testsFailed ++
+		testsFailed++
 	}
 }
 
@@ -28,8 +30,6 @@ func printTestSeperator(testCategory string) {
 }
 
 func main() {
-
-
 	// Run tests
 	printTestSeperator("testGetHealthendpoint")
 	testGetHealthendpoint()
@@ -55,5 +55,4 @@ func main() {
 	println("\n\n")
 	color.Red("Tests failed: %s", strconv.Itoa(testsFailed))
 	color.Green("Tests passed: %s", strconv.Itoa(testsPassed))
-
 }

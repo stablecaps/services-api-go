@@ -9,7 +9,6 @@ import (
 func testGetServiceById() {
 	endpoint := "/services/id/"
 
-
 	testNameSlice := []string{
 		// Test serviceId 400s
 		"badServiceId", "outOfRangeServiceId",
@@ -18,8 +17,7 @@ func testGetServiceById() {
 	}
 	wantedCodes := []int{404, 404, 200}
 	paramMapList := map[string]string{}
-	serviceIdList := []string{"fake", "-10", "5",}
-
+	serviceIdList := []string{"fake", "-10", "5"}
 
 	for idx, testName := range testNameSlice {
 		fmt.Println("\n~~~~~~~~~~~~~~~~~~~~")
