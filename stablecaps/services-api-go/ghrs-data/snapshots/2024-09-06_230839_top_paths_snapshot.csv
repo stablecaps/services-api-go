@@ -1,0 +1,11 @@
+url_path,views_total,views_unique
+/stablecaps/services-api-go/blob/main/cmd/patheticTester/patheticTester.go,6,3
+/stablecaps/services-api-go/blob/51dbb56dd3f275c536cfd258e82188249c338907/Makefile,4,2
+/stablecaps/services-api-go,2,2
+/stablecaps/services-api-go/blob/main/cmd/apiServerMain/apiServerMain.go,2,1
+/stablecaps/services-api-go/blob/main/cmd/paginateTest/paginateTest.go,2,1
+/stablecaps/services-api-go/blob/main/cmd/patheticTester/testDeleteServiceById.go,2,1
+/stablecaps/services-api-go/blob/main/cmd/patheticTester/testGetServiceById.go,2,1
+/stablecaps/services-api-go/blob/main/cmd/patheticTester/testGetServiceByName.go,2,1
+/stablecaps/services-api-go/blob/main/cmd/patheticTester/testGetServiceVersionsById.go,2,1
+/stablecaps/services-api-go/blob/main/cmd/patheticTester/testHealthEndpoint.go,2,1
